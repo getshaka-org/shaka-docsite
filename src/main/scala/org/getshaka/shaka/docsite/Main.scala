@@ -44,36 +44,45 @@ class Main extends Component:
       .route(homePage)
       .catchAll(homePage)
 
-    header:
-      div:
-        id("mobile-menu")
-        a(cls("header-link"), href("get-started"), h3(t"Get Started"), onclick(toggleMobileMenu))
-        a(cls("header-link"), href("tutorial"), h3(t"Tutorial"), onclick(toggleMobileMenu))
-        a(cls("header-link"), href("docs"), h3(t"Docs"), onclick(toggleMobileMenu))
-        a(cls("header-link"), href("https://github.com/getshaka-org/shaka"), target("_blank"), h3(t"Github"))
-        a(id("dark-mode-menu-a"), cls("header-link"), href(""), onclick(toggleDarkMode), h3(t"Dark Mode"))
-      div:
-        id("nav-bar")
-        a(cls("row header-link"), href("/")):
-          img(id("header-icon"), cls("col"), src("dist/img/shaka-icon.png"), alt("shaka-icon"))
-          h2(cls("col"), t"Shaka")
-        div(id("header-pages")):
-          a(cls("header-link"), href("get-started"), h3(t"Get Started"))
-          a(cls("header-link"), href("tutorial"), h3(t"Tutorial"))
-          a(cls("header-link"), href("docs"), h3(t"Docs"))
-          a(cls("header-link"), href("https://github.com/getshaka-org/shaka"), target("_blank"), h3(t"Github"))
-        a(id("header-dark-mode"), href(""), cls("header-link"), onclick(toggleDarkMode), h3(t"Dark Mode"))
-        a(id("menu-toggle"), onclick(toggleMobileMenu)):
-          img(src("dist/img/menu-icon.png"), alt("menu"))
+    header{
+      div{id("mobile-menu")
+        a{cls("header-link"); href("get-started"); h3(t"Get Started"); onclick(toggleMobileMenu)}
+        a{cls("header-link"); href("tutorial"); h3(t"Tutorial"); onclick(toggleMobileMenu)}
+        a{cls("header-link"); href("docs"); h3(t"Docs"); onclick(toggleMobileMenu)}
+        a{cls("header-link"); href("https://github.com/getshaka-org/shaka"); target("_blank"); h3{t"Github"}}
+        a{id("dark-mode-menu-a"); cls("header-link"); href(""); onclick(toggleDarkMode); h3{t"Dark Mode"}}
+      }
+      div{id("nav-bar")
+        a{cls("row header-link"); href("/")
+          img{id("header-icon"); cls("col"); src("dist/img/shaka-icon.png"); alt("shaka-icon")}
+          h2{cls("col"); t"Shaka"}
+        }
+        div{id("header-pages")
+          a{cls("header-link"); href("get-started"); h3{t"Get Started"}}
+          a{cls("header-link"); href("tutorial"); h3{t"Tutorial"}}
+          a{cls("header-link"); href("docs"); h3{t"Docs"}}
+          a{cls("header-link"); href("https://github.com/getshaka-org/shaka"); target("_blank"); h3{t"Github"}}
+        }
+        a{id("header-dark-mode"); href(""); cls("header-link"); onclick(toggleDarkMode); h3{t"Dark Mode"}}
+        a{id("menu-toggle"); onclick(toggleMobileMenu)
+          img{src("dist/img/menu-icon.png"); alt("menu")}
+        }
+      }
+    }
 
-    main:
+    main{
       router.render
-    footer:
-      div(id("footer-box-links")):
-        a(href("get-started")):
-          div(id("footer-get-started"), h3(t"Get Started"))
-        a(href("tutorial")):
-          div(id("footer-take-tutorial"), h3(t"Take the Tutorial"))
+    }
+    footer{
+      div{id("footer-box-links")
+        a{href("get-started")
+          div{id("footer-get-started"); h3{t"Get Started"}}
+        }
+        a{href("tutorial")
+          div{id("footer-take-tutorial"); h3{t"Take the Tutorial"}}
+        }
+      }
+    }
   end template
 
 @main def launchApp: Unit = shaka.render(Main())
