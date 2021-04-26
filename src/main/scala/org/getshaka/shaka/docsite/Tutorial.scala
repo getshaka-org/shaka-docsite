@@ -197,7 +197,7 @@ class Tutorial extends Component with Routable:
             |""".stripMargin.t
         }
       }
-      p{t"""Notice that type SquareValue is a Union type not with String, but the literal "X" and "O". Yes, such constants are types in Scala 3! But why use Null instead of Option? Since we have Scala 3's ${a{href("https://dotty.epfl.ch/docs/reference/other-new-features/explicit-nulls.html"); target("_blank"); t"explicit nulls"}} enabled, nulls are just as safe as Option, without the runtime overhead. We can now create the GameState object, with all-empty squareValues and X going first:"""}
+      p{t"""Notice that type SquareValue is a Union type not with String, but the literal "X" and "O". Yes, such constants are types in Scala 3! We can now create the GameState object, with all-empty squareValues and X going first:"""}
       pre{
         code{cls("scala doc-code")
           """object GameState extends State(Game(true, Seq.fill(9)(null))):
@@ -567,7 +567,6 @@ class Tutorial extends Component with Routable:
             |""".stripMargin.t
         }
       }
-      p{t"""Finally, we need to disable explicit nulls, since that feature is ${a{href("https://github.com/lampepfl/dotty/issues/11645"); t"not working"}} with typeclass derivation on literal types yet."""}
       p{t"And now, the game state will persist when you refresh your browser."}
       hr{}
       TicTac8().render

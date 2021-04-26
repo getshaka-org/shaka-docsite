@@ -50,7 +50,7 @@ class Main extends Component:
         a{cls("header-link"); href("tutorial"); h3(t"Tutorial"); onclick(toggleMobileMenu)}
         a{cls("header-link"); href("docs"); h3(t"Docs"); onclick(toggleMobileMenu)}
         a{cls("header-link"); href("https://github.com/getshaka-org/shaka"); target("_blank"); h3{t"Github"}}
-        a{id("dark-mode-menu-a"); cls("header-link"); href(""); onclick(toggleDarkMode); h3{t"Dark Mode"}}
+        span{id("dark-mode-menu-a"); cls("header-link"); onclick(toggleDarkMode); h3{t"Dark Mode"}}
       }
       div{id("nav-bar")
         a{cls("row header-link"); href("/")
@@ -63,7 +63,7 @@ class Main extends Component:
           a{cls("header-link"); href("docs"); h3{t"Docs"}}
           a{cls("header-link"); href("https://github.com/getshaka-org/shaka"); target("_blank"); h3{t"Github"}}
         }
-        a{id("header-dark-mode"); href(""); cls("header-link"); onclick(toggleDarkMode); h3{t"Dark Mode"}}
+        span{id("header-dark-mode"); cls("header-link"); onclick(toggleDarkMode); h3{t"Dark Mode"}}
         a{id("menu-toggle"); onclick(toggleMobileMenu)
           img{src("dist/img/menu-icon.png"); alt("menu")}
         }

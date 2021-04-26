@@ -12,7 +12,7 @@ class Docs extends Component with Routable:
   
   override val path: Regex = "/docs".r
   
-  override def template: ComponentBuilder =
+  override val template: ComponentBuilder =
     import shaka.builders._
     div{cls("doc-body")
       div{
