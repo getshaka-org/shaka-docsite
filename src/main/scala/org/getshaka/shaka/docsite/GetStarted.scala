@@ -20,9 +20,6 @@ class GetStarted extends Component with Routable:
         pre{
           code{cls("scala doc-code")
             """sbt new augustnagro/shaka.g8
-              |
-              |// or, for a JVM/JS Cross-Project
-              |sbt new augustnagro/shaka-crossproject.g8
               |""".stripMargin.t
           }
         }

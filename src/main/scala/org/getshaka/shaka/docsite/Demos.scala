@@ -2,7 +2,7 @@ package org.getshaka.shaka.docsite
 
 import org.getshaka.nativeconverter.NativeConverter
 import org.getshaka.shaka
-import org.getshaka.shaka.{Component, ComponentBuilder, Element, State, WebComponent, LocalStorage, OpenState}
+import org.getshaka.shaka.{Component, ComponentBuilder, Element, State, WebComponent, LocalStorage, OpenState, ShadowDom}
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
@@ -17,12 +17,12 @@ class HelloMessage(user: String) extends Component:
     div{color("purple"); p{t"Hello $user"}}
 
 class Timer extends WebComponent:
-  val seconds = shaka.useState(0)
-  var interval: js.Dynamic|Null = null
+  private val seconds = shaka.useState(0)
+  private var interval: js.Dynamic = null
 
   override def connectedCallback(): Unit =
     interval = js.Dynamic.global
-      .setInterval(() => seconds.value += 1, 1000)
+      .setInterval(() => seconds.setValue(_ + 1), 1000)
 
   override def disconnectedCallback(): Unit =
     js.Dynamic.global.clearInterval(interval)
@@ -34,8 +34,8 @@ class Timer extends WebComponent:
 case class Item(date: js.Date, text: String)
 
 class TodoApp extends Component:
-  val items = shaka.useState(Buffer.empty[Item])
-  val text = shaka.useState("")
+  private val items = shaka.useState(IArray.empty[Item])
+  private val text = shaka.useState("")
 
   override val template: ComponentBuilder =
     import shaka.builders.*
@@ -59,15 +59,14 @@ class TodoApp extends Component:
       }
     }
 
-  def handleSubmit(e: js.Dynamic): Unit =
+  private def handleSubmit(e: js.Dynamic): Unit =
     e.preventDefault()
     if text.value.isEmpty then return
-    val newItem = Item(new js.Date, text.value)
-    items.value = items.value.addOne(newItem)
-    text.value = ""
+    items.setValue(_ :+ Item(new js.Date, text.value))
+    text.setValue("")
 
-  def handleChange(e: js.Dynamic): Unit =
-    text.value = e.target.value.asInstanceOf[String]
+  private def handleChange(e: js.Dynamic): Unit =
+    text.setValue(e.target.value.asInstanceOf[String])
 
 
 class TodoList(items: Seq[Item]) extends Component:
@@ -113,9 +112,9 @@ class MarkdownEditor extends Component:
       )
     }
 
-  def updateMarkdown(e: js.Dynamic): Unit =
+  private def updateMarkdown(e: js.Dynamic): Unit =
     val input = e.target.value.asInstanceOf[String]
-    mdHtml.value = remarkable.render(input)
+    mdHtml.setValue(remarkable.render(input))
 
 class ShoppingList(name: String) extends Component:
 
@@ -151,7 +150,7 @@ def explicitHello(name: String): ComponentBuilder =
       "hello world".t(using h1Element)
     }(using parentElement)
 
-val TicTacStyles =
+val TicTacStyles = ShadowDom.WithStyle(
   """
     |
     |ol, ul {
@@ -200,10 +199,11 @@ val TicTacStyles =
     |  margin-left: 20px;
     |}
     |""".stripMargin
+)
 
 
 class TicTac1 extends WebComponent:
-  override def scopedStyle: String = TicTacStyles
+  override val shadowDom: ShadowDom = TicTacStyles
 
   override val template: ComponentBuilder =
     import shaka.builders.*
@@ -253,7 +253,7 @@ class TicTac1 extends WebComponent:
 end TicTac1
 
 class TicTac2 extends WebComponent:
-  override def scopedStyle: String = TicTacStyles
+  override val shadowDom: ShadowDom = TicTacStyles
 
   override val template: ComponentBuilder =
     import shaka.builders.*
@@ -270,7 +270,7 @@ class TicTac2 extends WebComponent:
   class Square(position: Int) extends Component:
     override val template: ComponentBuilder =
       import shaka.builders.{position as _, *}
-      button{className("square"); position.toString.t}
+      button{className("square"); t"$position"}
 
   class Board extends Component:
     override val template: ComponentBuilder =
@@ -295,7 +295,7 @@ end TicTac2
 
 
 class TicTac3 extends WebComponent:
-  override def scopedStyle: String = TicTacStyles
+  override val shadowDom: ShadowDom = TicTacStyles
 
   override val template: ComponentBuilder =
     import shaka.builders.*
@@ -335,7 +335,7 @@ class TicTac3 extends WebComponent:
 end TicTac3
 
 class TicTac4 extends WebComponent:
-  override def scopedStyle: String = TicTacStyles
+  override val shadowDom: ShadowDom = TicTacStyles
 
   override val template: ComponentBuilder =
     import shaka.builders.*
@@ -354,7 +354,7 @@ class TicTac4 extends WebComponent:
 
     override val template: ComponentBuilder =
       import shaka.builders.*
-      button{className("square"); onclick(() => wasClicked.value = true)
+      button{className("square"); onclick(() => wasClicked.setValue(true))
         wasClicked.bind(clicked =>
           if clicked then t"X" else t""
         )
@@ -380,10 +380,17 @@ class TicTac4 extends WebComponent:
       }
 end TicTac4
 
+enum SquareValue(val display: String):
+  case X extends SquareValue("X")
+  case O extends SquareValue("O")
+  case Empty extends SquareValue("")
+
+import SquareValue.*
+
 class TicTac5 extends WebComponent:
   import TicTac5.*
 
-  override def scopedStyle: String = TicTacStyles
+  override val shadowDom: ShadowDom = TicTacStyles
 
   override val template: ComponentBuilder =
     import shaka.builders.*
@@ -402,10 +409,7 @@ class TicTac5 extends WebComponent:
       import shaka.builders.{position as _, *}
 
       button{className("square"); onclick(() => GameState.setSquare(position))
-        GameState.bind(_.squareValues(position) match
-          case xOrY: String => xOrY.t
-          case null => "".t
-        )
+        GameState.bind(_.boardState(position).display.t)
       }
 
   class Board extends Component:
@@ -431,24 +435,24 @@ class TicTac5 extends WebComponent:
       }
 end TicTac5
 object TicTac5:
-  type SquareValue = "X"|"O"|Null
 
-  case class Game(xIsNext: Boolean, squareValues: Seq[SquareValue])
+  case class Game(xIsNext: Boolean, boardState: IArray[SquareValue])
 
-  object GameState extends State(Game(true, Seq.fill(9)(null))):
+  object GameState extends State(Game(true, IArray.fill(9)(Empty))):
 
     def setSquare(position: Int): Unit =
-      if value.squareValues(position) != null then return
+      if value.boardState(position) != Empty then return
 
-      val squareValues: Array[SquareValue] = value.squareValues.toArray
-      squareValues(position) = if value.xIsNext then "X" else "O"
-      value = Game(!value.xIsNext, squareValues)
+      val newBoardState: IArray[SquareValue] =
+        value.boardState.updated(position, if value.xIsNext then X else O)
+
+      setValue(Game(!value.xIsNext, newBoardState))
 
 
 class TicTac6 extends WebComponent:
   import TicTac6.*
 
-  override def scopedStyle: String = TicTacStyles
+  override val shadowDom: ShadowDom = TicTacStyles
 
   override val template: ComponentBuilder =
     import shaka.builders.*
@@ -467,10 +471,7 @@ class TicTac6 extends WebComponent:
       import shaka.builders.{position as _, *}
 
       button{className("square"); onclick(() => GameState.setSquare(position))
-        GameState.bind(_.squareValues(position) match
-          case xOrY: String => xOrY.t
-          case null => "".t
-        )
+        GameState.bind(_.boardState(position).display.t)
       }
 
   class Board extends Component:
@@ -481,9 +482,10 @@ class TicTac6 extends WebComponent:
         Square(position = i).render
 
       val status: ComponentBuilder =
-        GameState.bind(s => calculateWinner(s.squareValues) match
-          case xOrY: String => t"Winner: $xOrY"
-          case null => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
+        GameState.bind(s => calculateWinner(s.boardState) match
+          case X => t"Winner: X"
+          case O => t"Winner: O"
+          case Empty => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
         )
 
       div{
@@ -499,49 +501,53 @@ class TicTac6 extends WebComponent:
       }
 end TicTac6
 private object TicTac6:
-  type SquareValue = "X"|"O"|Null
+  case class Game(xIsNext: Boolean, boardState: IArray[SquareValue])
 
-  case class Game(xIsNext: Boolean, squareValues: Seq[SquareValue])
-
-  object GameState extends State(Game(true, Seq.fill(9)(null))):
+  object GameState extends State(Game(true, IArray.fill(9)(Empty))):
 
     def setSquare(position: Int): Unit =
-      if value.squareValues(position) != null
-        || calculateWinner(value.squareValues) != null then return
+      if value.boardState(position) != Empty
+        || calculateWinner(value.boardState) != Empty then return
 
-      val squareValues: Array[SquareValue] = value.squareValues.toArray
-      squareValues(position) = if value.xIsNext then "X" else "O"
-      value = Game(!value.xIsNext, squareValues)
+      val newBoardState: IArray[SquareValue] =
+        value.boardState.updated(position, if value.xIsNext then X else O)
+
+      setValue(Game(!value.xIsNext, newBoardState))
   end GameState
 
-  def calculateWinner(squares: Seq[SquareValue]): SquareValue =
-    val lines = Array(
-      Array(0, 1, 2),
-      Array(3, 4, 5),
-      Array(6, 7, 8),
-      Array(0, 3, 6),
-      Array(1, 4, 7),
-      Array(2, 5, 8),
-      Array(0, 4, 8),
-      Array(2, 4, 6)
-    )
-    for Array(a, b, c) <- lines do
-      if squares(a) != null && squares(a) == squares(b) && squares(a) == squares(c) then
-        return squares(a)
-    return null
+  val lines = IArray(
+    IArray(0, 1, 2),
+    IArray(3, 4, 5),
+    IArray(6, 7, 8),
+    IArray(0, 3, 6),
+    IArray(1, 4, 7),
+    IArray(2, 5, 8),
+    IArray(0, 4, 8),
+    IArray(2, 4, 6)
+  )
+
+  def calculateWinner(boardState: IArray[SquareValue]): SquareValue =
+    for IArray(a, b, c) <- lines do
+      if
+        boardState(a) != Empty &&
+        boardState(a) == boardState(b) &&
+        boardState(a) == boardState(c)
+      then return boardState(a)
+    return Empty
 
 class TicTac7 extends WebComponent:
   import TicTac7.*
 
-  override def scopedStyle: String = TicTacStyles
+  override val shadowDom: ShadowDom = TicTacStyles
 
   override val template: ComponentBuilder =
     import shaka.builders.*
 
     val status: ComponentBuilder =
       GameState.bind(s => calculateWinner(s.history(s.stepNumber)) match
-        case xOrY: String => t"Winner: $xOrY"
-        case null => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
+        case X => t"Winner: X"
+        case O => t"Winner: O"
+        case Empty => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
       )
 
     val moves: ComponentBuilder =
@@ -567,10 +573,7 @@ class TicTac7 extends WebComponent:
       import shaka.builders.{position as _, *}
 
       button{className("square"); onclick(() => GameState.setSquare(position))
-        GameState.bind(s => s.history(s.stepNumber)(position) match
-          case xOrY: String => xOrY.t
-          case null => t""
-        )
+        GameState.bind(s => s.history(s.stepNumber)(position).display.t)
       }
 
   class Board extends Component:
@@ -590,63 +593,66 @@ class TicTac7 extends WebComponent:
       }
 end TicTac7
 object TicTac7:
-  type SquareValue = "X"|"O"|Null
-  type SquareValues = Seq[SquareValue]
+  type BoardState = IArray[SquareValue]
 
-  case class Game(xIsNext: Boolean, stepNumber: Int, history: Seq[SquareValues])
+  case class Game(xIsNext: Boolean, stepNumber: Int, history: IArray[BoardState])
 
-  object GameState extends State(Game(true, 0, Seq(Seq.fill(9)(null)))):
+  object GameState extends State(Game(true, 0, IArray(IArray.fill(9)(Empty)))):
 
     def setSquare(position: Int): Unit =
       val hist = value.history.slice(0, value.stepNumber + 1)
-      val squares: Array[SquareValue] = hist.last.toArray
-      if squares(position) != null || calculateWinner(squares) != null
+      val currBoardState = hist.last
+      if currBoardState(position) != Empty || calculateWinner(currBoardState) != Empty
         then return
 
-      squares(position) = if value.xIsNext then "X" else "O"
-      value = value.copy(
+      val newBoardState = currBoardState.updated(position, if value.xIsNext then X else O)
+      setValue(value.copy(
         xIsNext = !value.xIsNext,
         stepNumber = hist.length,
-        history = hist :+ squares
-      )
+        history = hist :+ newBoardState
+      ))
 
     def jumpTo(step: Int): Unit =
-      value = value.copy(
+      setValue(value.copy(
         stepNumber = step,
         xIsNext = (step % 2) == 0
-      )
+      ))
 
   end GameState
 
-  def calculateWinner(squares: Seq[SquareValue]): SquareValue =
-    val lines = Array(
-      Array(0, 1, 2),
-      Array(3, 4, 5),
-      Array(6, 7, 8),
-      Array(0, 3, 6),
-      Array(1, 4, 7),
-      Array(2, 5, 8),
-      Array(0, 4, 8),
-      Array(2, 4, 6)
-    )
-    for Array(a, b, c) <- lines do
-      if squares(a) != null && squares(a) == squares(b) && squares(a) == squares(c) then
-        return squares(a)
-    return null
+  val lines = IArray(
+    IArray(0, 1, 2),
+    IArray(3, 4, 5),
+    IArray(6, 7, 8),
+    IArray(0, 3, 6),
+    IArray(1, 4, 7),
+    IArray(2, 5, 8),
+    IArray(0, 4, 8),
+    IArray(2, 4, 6)
+  )
 
+  def calculateWinner(squares: IArray[SquareValue]): SquareValue =
+    for IArray(a, b, c) <- lines do
+      if
+        squares(a) != Empty &&
+        squares(a) == squares(b) &&
+        squares(a) == squares(c)
+      then return squares(a)
+    return Empty
 
 class TicTac8 extends WebComponent:
   import TicTac8.*
 
-  override def scopedStyle: String = TicTacStyles
+  override val shadowDom: ShadowDom = TicTacStyles
 
   override val template: ComponentBuilder =
     import shaka.builders.*
 
     val status: ComponentBuilder =
       GameState.bind(s => calculateWinner(s.history(s.stepNumber)) match
-        case xOrY: String => t"Winner: $xOrY"
-        case null => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
+        case X => t"Winner: X"
+        case O => t"Winner: O"
+        case Empty => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
       )
 
     val moves: ComponentBuilder =
@@ -672,10 +678,7 @@ class TicTac8 extends WebComponent:
       import shaka.builders.{position as _, *}
 
       button{className("square"); onclick(() => GameState.setSquare(position))
-        GameState.bind(s => s.history(s.stepNumber)(position) match
-          case xOrY: String => xOrY.t
-          case null => t""
-        )
+        GameState.bind(s => s.history(s.stepNumber)(position).display.t)
       }
 
   class Board extends Component:
@@ -695,51 +698,49 @@ class TicTac8 extends WebComponent:
       }
 end TicTac8
 object TicTac8:
-  type SquareValue = "X"|"O"|Null
-  type SquareValues = Seq[SquareValue]
+  case class Game(xIsNext: Boolean, stepNumber: Int, history: IArray[IArray[SquareValue]]) derives NativeConverter
   
-  case class Game(xIsNext: Boolean, stepNumber: Int, history: Seq[SquareValues]) derives NativeConverter
-  
-  object GameState extends State(Game(true, 0, Seq(Seq.fill(9)(null))), LocalStorage("game-state")):
+  object GameState extends State(Game(true, 0, IArray(IArray.fill(9)(Empty))), LocalStorage("game-state")):
 
     def setSquare(position: Int): Unit =
       val hist = value.history.slice(0, value.stepNumber + 1)
-      val squares: Array[SquareValue] = hist.last.toArray
-      if squares(position) != null || calculateWinner(squares) != null
+      val currBoardState = hist.last
+      if currBoardState(position) != Empty || calculateWinner(currBoardState) != Empty
         then return
 
-      squares(position) = if value.xIsNext then "X" else "O"
-      value = value.copy(
+      val newBoardState = currBoardState.updated(position, if value.xIsNext then X else O)
+      setValue(value.copy(
         xIsNext = !value.xIsNext,
         stepNumber = hist.length,
-        history = hist :+ squares
-      )
+        history = hist :+ newBoardState
+      ))
 
     def jumpTo(step: Int): Unit =
-      value = value.copy(
+      setValue(value.copy(
         stepNumber = step,
         xIsNext = (step % 2) == 0
-      )
+      ))
 
   end GameState
 
-  def calculateWinner(squares: Seq[SquareValue]): SquareValue =
-    val lines = Array(
-      Array(0, 1, 2),
-      Array(3, 4, 5),
-      Array(6, 7, 8),
-      Array(0, 3, 6),
-      Array(1, 4, 7),
-      Array(2, 5, 8),
-      Array(0, 4, 8),
-      Array(2, 4, 6)
-    )
-    for Array(a, b, c) <- lines do
-      if squares(a) != null && squares(a) == squares(b)
-        && squares(a) == squares(c) then
-        return squares(a)
-    return null
-
+  val lines = IArray(
+    IArray(0, 1, 2),
+    IArray(3, 4, 5),
+    IArray(6, 7, 8),
+    IArray(0, 3, 6),
+    IArray(1, 4, 7),
+    IArray(2, 5, 8),
+    IArray(0, 4, 8),
+    IArray(2, 4, 6)
+  )
+  def calculateWinner(boardState: IArray[SquareValue]): SquareValue =
+    for IArray(a, b, c) <- lines do
+      if
+        boardState(a) != Empty &&
+        boardState(a) == boardState(b) &&
+        boardState(a) == boardState(c)
+      then return boardState(a)
+    return Empty
 
 class ClickHole extends Component:
   private val numClicks = useState(0)
@@ -747,7 +748,7 @@ class ClickHole extends Component:
   override val template: ComponentBuilder =
     import shaka.builders.*
 
-    button{onclick(() => numClicks.value += 1)
+    button{onclick(() => numClicks.setValue(_ + 1))
       t"click me"
     }
     p{t"numClicks: ${numClicks.bind(_.toString.t)}"}

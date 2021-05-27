@@ -96,7 +96,7 @@ class Home extends Component with Routable:
       div{cls("example-row")
         div{cls("example-descr")
           h2{t"Generated Code"}
-          p{t"""To the right is the (unminified) JavaScript for HelloMessage, generated with `sbt fullLinkJS`. Shaka uses ${a{href("https://dotty.epfl.ch/docs/reference/contextual/context-functions.html#example-builder-pattern"); target("_blank"); t"Context Functions"}} for its fluent builder api, but executing a function for every DOM element could be slow. So in addition we use Scala 3's ${a{href("https://dotty.epfl.ch/docs/reference/metaprogramming/inline.html"); target("_blank"); t"guaranteed inlining"}} to elide the functions at compile time, producing highly efficient JavaScript."""}
+          p{t"""To the right is the (unminified) JavaScript for HelloMessage, generated with `sbt fullLinkJS`. Shaka uses ${a{href("https://dotty.epfl.ch/docs/reference/contextual/context-functions.html#example-builder-pattern"); target("_blank"); t"Context Functions"}} for its fluent builder api, but executing a function for every DOM element could be slow. So in addition we use Scala 3's ${a{href("https://dotty.epfl.ch/docs/reference/metaprogramming/inline.html"); target("_blank"); t"Guaranteed Inlining"}} to elide the functions at compile time, producing highly efficient JavaScript."""}
         }
         div{cls("code-in-out")
           pre{
@@ -145,11 +145,11 @@ class Home extends Component with Routable:
                 |
                 |class Timer extends WebComponent:
                 |  private val seconds = shaka.useState(0)
-                |  private var interval: js.Dynamic|Null = null
+                |  private var interval: js.Dynamic = null
                 |
                 |  override def connectedCallback(): Unit =
                 |    interval = js.Dynamic.global
-                |      .setInterval(() => seconds.value += 1, 1000)
+                |      .setInterval(() => seconds.setValue(_ + 1), 1000)
                 |
                 |  override def disconnectedCallback(): Unit =
                 |    js.Dynamic.global.clearInterval(interval)
@@ -157,7 +157,6 @@ class Home extends Component with Routable:
                 |  override val template: ComponentBuilder =
                 |    import shaka.builders.*
                 |    seconds.bind(value => t"Seconds: $value")
-                |
                 |""".stripMargin.t
             }
           }
@@ -182,7 +181,6 @@ class Home extends Component with Routable:
             code{cls("scala")
               """
                 |import scala.collection.Seq
-                |import scala.collection.mutable.Buffer
                 |import scala.scalajs.js
                 |import org.getshaka.shaka
                 |import org.getshaka.shaka.useState
@@ -191,7 +189,7 @@ class Home extends Component with Routable:
                 |case class Item(date: js.Date, text: String)
                 |
                 |class TodoApp extends Component:
-                |  private val items = useState(Buffer.empty[Item])
+                |  private val items = useState(IArray.empty[Item])
                 |  private val text = useState("")
                 |
                 |  override val template: ComponentBuilder =
@@ -216,16 +214,14 @@ class Home extends Component with Routable:
                 |      }
                 |    }
                 |
-                |  def handleSubmit(e: js.Dynamic): Unit =
+                |  private def handleSubmit(e: js.Dynamic): Unit =
                 |    e.preventDefault()
                 |    if text.value.isEmpty then return
-                |    val newItem = Item(new js.Date, text.value)
-                |    items.value = items.value.addOne(newItem)
-                |    text.value = ""
+                |    items.setValue(_ :+ Item(new js.Date, text.value))
+                |    text.setValue("")
                 |
-                |  def handleChange(e: js.Dynamic): Unit =
-                |    text.value = e.target.value.asInstanceOf[String]
-                |
+                |  private def handleChange(e: js.Dynamic): Unit =
+                |    text.setValue(e.target.value.asInstanceOf[String])
                 |
                 |class TodoList(items: Seq[Item]) extends Component:
                 |  override val template: ComponentBuilder =
