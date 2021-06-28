@@ -26,7 +26,7 @@ class GetStarted extends Component with Routable:
         p{t"It's recommended to start with the ${a{href("tutorial"); t"Tutorial"}}. Otherwise, check out the ${a{href("doct"); "Documentation".t}}. Finally, you're welcome to file any question, bug, or feature request on the ${a{href("https://github.com/getshaka-org/shaka"); target("_blank"); t"Github project"}}."}
         br{}
         br{}
-        img{src("dist/img/shaka-windsurf.jpg"); width("100%"); alt("shaka windsurfer")}
+        img{src("img/shaka-windsurf.jpg"); width("100%"); alt("shaka windsurfer")}
         p{t"Windsurfer Amado Vrieswijk performing the 'Shaka'. Photo credit: continentseven.com"}
       }
     }

@@ -54,7 +54,7 @@ class Main extends Component:
       }
       div{id("nav-bar")
         a{cls("row header-link"); href("/")
-          img{id("header-icon"); cls("col"); src("dist/img/shaka-icon.png"); alt("shaka-icon")}
+          img{id("header-icon"); cls("col"); src("img/shaka-icon.png"); alt("shaka-icon")}
           h2{cls("col"); t"Shaka"}
         }
         div{id("header-pages")
@@ -65,7 +65,7 @@ class Main extends Component:
         }
         span{id("header-dark-mode"); cls("header-link"); onclick(toggleDarkMode); h3{t"Dark Mode"}}
         a{id("menu-toggle"); onclick(toggleMobileMenu)
-          img{src("dist/img/menu-icon.png"); alt("menu")}
+          img{src("img/menu-icon.png"); alt("menu")}
         }
       }
     }
