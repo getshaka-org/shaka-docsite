@@ -38,7 +38,7 @@ class Tutorial extends Component with Routable:
       }
       p{t"""See the ${a{href("get-started"); t"Get Started"}} section if you have questions. To jump to the final code, ${anchorForId("final-result", "click here")}."""}
       h2WithAnchor("what-is-shaka", "What is Shaka?")
-      p{"""Shaka is a declarative Scala.js library for building user interfaces. It lets you compose UIs from small and encapsulated pieces. The typical way to use Shaka is by building classes that extend the Component trait:""".t}
+      p{t"Shaka is a declarative Scala.js library for building user interfaces. It lets you compose UIs from small and encapsulated pieces. The typical way to use Shaka is by building classes that extend the ${a{"Component".t; target("_blank"); href("https://javadoc.io/doc/org.getshaka/shaka_sjs1_3/latest/api/org/getshaka/shaka/Component.html")}} trait:"}
       pre{
         code{cls("scala doc-code")
           """class ShoppingList(name: String) extends Component:
@@ -82,7 +82,7 @@ class Tutorial extends Component with Routable:
             |""".stripMargin.t
         }
       }
-      p{t"The ComponentBuilder type is a function that, given a parent Element and parent Binding, returns Unit. The ComponentBuilders in shaka.builders use these given parameters to construct the DOM. A 'given' parameter is just one that we don't need to specify, although we can if we really want to:"}
+      p{t"The ComponentBuilder type is a function that, given a parent Element and parent Binding, returns Unit. The ComponentBuilders in ${a{"shaka.builders".t; target("_blank"); href("https://javadoc.io/doc/org.getshaka/shaka_sjs1_3/latest/api/org/getshaka/shaka/builders.html")}} use these contextual parameters to construct the DOM. A 'contextual' parameter is just one that we don't need to specify, although we can if we need to:"}
       pre{
         code{cls("scala doc-code")
           """def explicitHello(name: String): ComponentBuilder =
@@ -96,7 +96,7 @@ class Tutorial extends Component with Routable:
         }
       }
       p{t"""While you don't need to know this, using ${a{href("https://dotty.epfl.ch/docs/reference/contextual/context-functions.html#example-builder-pattern"); target("_blank"); t"Context Functions"}} in this way allows Shaka to efficiently build and manage Bindings."""}
-      p{t"The Component trait defines two methods: template, which returns a ComponentBuilder, and render, which uses the template to render the component. Render is a default method and should only be overriden when implementing new Component types. For example, WebComponent overrides render to wrap super.render in a Custom Element, allowing you to use shadow-dom and lifecycle callbacks."}
+      p{t"The Component trait defines two methods: template, which returns a ComponentBuilder, and render, which uses the template to render the component. Render is a default method and should only be overriden when implementing new Component types. For example, ${a{"WebComponent".t; target("_blank"); href("https://javadoc.io/doc/org.getshaka/shaka_sjs1_3/latest/api/org/getshaka/shaka/WebComponent.html")}} overrides render to use Custom Elements, enabling scoped-CSS and lifecycle callbacks."}
       p{t"Notice that the builder methods are implemented with plain Scala code. That means you can can put anything inside them, including vals and for loops. As long as the template remains a pure function of component state, the possibilities are endless."}
       h2WithAnchor("starter-code", "Starter Code")
       hr{}
@@ -183,7 +183,7 @@ class Tutorial extends Component with Routable:
       hr{}
       TicTac4().render
       hr{}
-      p{t"useState returns an instance of OpenState and should always be encapsulated. When the state's value setter is called, every dependent Binding gets recomputed. While this example does not show it, Bindings can be nested and composed without worrying about memory leaks. This is because Bindings are constructed into a managed directed acyclic dependency graph (DAG). When a Binding's Element is no longer part of the DOM, it is destroyed. Unlike VDOM, Shaka data bindings are precise."}
+      p{t"useState returns an instance of ${a{"OpenState".t; target("_blank"); href("https://javadoc.io/doc/org.getshaka/shaka_sjs1_3/latest/api/org/getshaka/shaka/OpenState.html")}} and should always be encapsulated. When the state's value setter is called, every dependent Binding gets recomputed. While this example does not show it, Bindings can be nested and composed without worrying about memory leaks. This is because Bindings are constructed into a managed directed acyclic dependency graph (DAG). When a Binding's Element is no longer part of the DOM, it is destroyed. Unlike VDOM, Shaka data bindings are precise and only recompute what is needed."}
       h3WithAnchor("developer-tools", "Developer Tools")
       p{t"Shaka generates DOM elements transparently; no browser extension like React Devtools is needed to understand the DOM. Scala.js automatically generates source maps for line-by-line debugging."}
       h2WithAnchor("completing-the-game", "Completing the Game")
@@ -259,7 +259,7 @@ class Tutorial extends Component with Routable:
             |""".stripMargin.t
         }
       }
-      p{t"It is ${b{t"very"}} important to specify the type for nextPlayer, and all other builder vals & defs we want to evaluate in different contexts. If we don't, the methods will be evaluated eagerly."}
+      p{t"${a{"For now".t; target("_blank"); href("https://github.com/getshaka-org/shaka/issues/4")}}, it is ${b{t"very"}} important to specify the type for nextPlayer, and all other builder vals & defs we want to evaluate in different contexts. If we don't, the methods will be evaluated eagerly."}
       p{t"Something else to mention is the TextNode interpolater, t. Did you know it can make rich text?"}
       pre{
         code{cls("scala doc-code")
@@ -452,113 +452,10 @@ class Tutorial extends Component with Routable:
         }
       }
       h2WithAnchor("final-result", "Final Result")
-      p{t"We did it! Here's the final result and copy-pastable code"}
+      p{t"We did it! Checkout the git branch 'final-code' for a local copy."}
       hr{}
       TicTac7().render
       hr{}
-      pre{
-        code{cls("scala doc-code")
-          """type BoardState = IArray[SquareValue]
-            |
-            |case class Game(xIsNext: Boolean, stepNumber: Int, history: IArray[BoardState])
-            |
-            |object GameState extends State(Game(true, 0, IArray(IArray.fill(9)(Empty)))):
-            |
-            |  def setSquare(position: Int): Unit =
-            |    val hist = value.history.slice(0, value.stepNumber + 1)
-            |    val currBoardState = hist.last
-            |    if currBoardState(position) != Empty || calculateWinner(currBoardState) != Empty
-            |      then return
-            |
-            |    val newBoardState = currBoardState.updated(position, if value.xIsNext then X else O)
-            |    setValue(value.copy(
-            |      xIsNext = !value.xIsNext,
-            |      stepNumber = hist.length,
-            |      history = hist :+ newBoardState
-            |    ))
-            |
-            |  def jumpTo(step: Int): Unit =
-            |    setValue(value.copy(
-            |      stepNumber = step,
-            |      xIsNext = (step % 2) == 0
-            |    ))
-            |
-            |class TicTacToe extends WebComponent:
-            |
-            |  override val template: ComponentBuilder =
-            |    import shaka.builders.*
-            |
-            |    val status: ComponentBuilder =
-            |      GameState.bind(s => calculateWinner(s.history(s.stepNumber)) match
-            |        case X => t"Winner: X"
-            |        case O => t"Winner: O"
-            |        case Empty => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
-            |      )
-            |
-            |    val moves: ComponentBuilder =
-            |      GameState.bind(_.history.indices.foreach(move =>
-            |        val desc =
-            |          if move > 0 then "Go to move #" + move
-            |          else "Go to game start"
-            |        li{button{onclick(() => GameState.jumpTo(move)); desc.t}}
-            |      ))
-            |
-            |    div{className("game")
-            |      div{className("game-board")
-            |        Board().render
-            |      }
-            |      div{className("game-info")
-            |        div{status}
-            |        ol{moves}
-            |      }
-            |    }
-            |
-            |class Board extends Component:
-            |  override val template: ComponentBuilder =
-            |    import shaka.builders.*
-            |
-            |    def renderSquare(i: Int): ComponentBuilder =
-            |      Square(position = i).render
-            |
-            |    div{
-            |      for i <- 0 until 9 by 3 do
-            |        div{className("board-row")
-            |          renderSquare(i)
-            |          renderSquare(i + 1)
-            |          renderSquare(i + 2)
-            |        }
-            |    }
-            |
-            |class Square(position: Int) extends Component:
-            |  override val template: ComponentBuilder =
-            |    import shaka.builders.{position as _, *}
-            |
-            |    button{className("square"); onclick(() => GameState.setSquare(position))
-            |      GameState.bind(s => s.history(s.stepNumber)(position).display.t)
-            |    }
-            |
-            |val lines = IArray(
-            |  IArray(0, 1, 2),
-            |  IArray(3, 4, 5),
-            |  IArray(6, 7, 8),
-            |  IArray(0, 3, 6),
-            |  IArray(1, 4, 7),
-            |  IArray(2, 5, 8),
-            |  IArray(0, 4, 8),
-            |  IArray(2, 4, 6)
-            |)
-            |
-            |def calculateWinner(squares: IArray[SquareValue]): SquareValue =
-            |  for IArray(a, b, c) <- lines do
-            |    if
-            |      squares(a) != Empty &&
-            |      squares(a) == squares(b) &&
-            |      squares(a) == squares(c)
-            |    then return squares(a)
-            |  return Empty
-            |""".stripMargin.t
-        }
-      }
       h2WithAnchor("state-persistence", "Bonus: State Persistence")
       p{t"A final cool property about State is that you can configure its persistence, whether in the LocalStorage, SessionStorage, or any provider implmenting trait shaka.StorageManager. First, add an instance of the desired StorageManager to State's constructor."}
       pre{

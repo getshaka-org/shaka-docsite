@@ -79,7 +79,10 @@ class Home extends Component with Routable:
                 |  override val template: ComponentBuilder =
                 |    import shaka.builders.*
                 |    
-                |    div{color("purple"); t"Hello $user"}
+                |    div {
+                |      color("purple")
+                |      t"Hello $user"
+                |    }
                 |
                 |@main def launchApp: Unit =
                 |  shaka.render(HelloMessage(user = "Nikki"))
@@ -96,7 +99,8 @@ class Home extends Component with Routable:
       div{cls("example-row")
         div{cls("example-descr")
           h2{t"Generated Code"}
-          p{t"""To the right is the (unminified) JavaScript for HelloMessage, generated with `sbt fullLinkJS`. Shaka uses ${a{href("https://dotty.epfl.ch/docs/reference/contextual/context-functions.html#example-builder-pattern"); target("_blank"); t"Context Functions"}} for its fluent builder api, but executing a function for every DOM element could be slow. So in addition we use Scala 3's ${a{href("https://dotty.epfl.ch/docs/reference/metaprogramming/inline.html"); target("_blank"); t"Guaranteed Inlining"}} to elide the functions at compile time, producing highly efficient JavaScript."""}
+          p{t"""To the right is the (unminified) JavaScript for HelloMessage's template, generated with `sbt fullLinkJS`."""}
+          p{t"By using Scala 3's ${a{href("https://docs.scala-lang.org/scala3/reference/metaprogramming/inline.html"); target("_blank"); t"Guaranteed Inlining"}}, highly efficient JavaScript is produced."}
         }
         div{cls("code-in-out")
           pre{
@@ -113,6 +117,11 @@ class Home extends Component with Routable:
                  |  a.appendChild(b);
                  |}
                  |
+                 |
+                 |
+                 |
+                 |
+                 |
                  |""".stripMargin.t
             }
           }
@@ -125,14 +134,9 @@ class Home extends Component with Routable:
       div{cls("example-row")
         div{cls("example-descr")
           h2{t"A Stateful Component"}
-          p{
-            """In addition to passing state through constructors, a component can maintain internal state with the useState 'hook'.
-              |
-              |A WebComponent is a Component wrapped in a Custom Element, allowing you to used scoped styles and lifecycle callbacks.
-              |
-              |If Timer is removed from the DOM, the interval and binding are destroyed.
-              |""".stripMargin.t
-          }
+          p{t"In addition to passing state through constructors, a component can maintain internal state with the useState 'hook'."}
+          p{t"A WebComponent is a Component wrapped in a ${a{href("https://developer.mozilla.org/en-US/docs/Web/Web_Components"); target("_blank"); t"Custom Element"}}, allowing you to used scoped styles and lifecycle callbacks."}
+          p{t"If Timer is removed from the DOM, the interval and binding are destroyed."}
         }
         div{cls("code-in-out")
           pre{
@@ -157,6 +161,7 @@ class Home extends Component with Routable:
                 |  override val template: ComponentBuilder =
                 |    import shaka.builders.*
                 |    seconds.bind(value => t"Seconds: $value")
+                |
                 |""".stripMargin.t
             }
           }
