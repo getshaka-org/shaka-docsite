@@ -7,7 +7,7 @@ import scala.util.matching.Regex
 
 class Tutorial extends Component:
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     div{cls("doc-body")
       div{
@@ -42,7 +42,7 @@ class Tutorial extends Component:
              |
              |class ShoppingList(userName: String) extends Component:
              |
-             |  override val template = Frag {
+             |  def template = Frag {
              |    import builders.*
              |    div{className("shopping-list")
              |      h1{t"Shopping list for $$userName"}
@@ -79,21 +79,21 @@ class Tutorial extends Component:
              |"""
         }
       }
-      p{t"Frag is a type that operates on a given parent Element and Binding. A 'given' (aka implicit) parameter is just one that we don't need to specify, although we can if we really want to:"}
-      pre{
-        code{cls("scala doc-code")
-          t"""def explicitHello(name: String): Frag = Frag {
-             |  (parentElement: Element, parentBinding: Binding[?]) ?=>
-             |    import builders.{name as _, *}
-             |
-             |    h1{h1Element ?=>
-             |      "hello world".t(using h1Element)
-             |    }(using parentElement)
-             |}
-             |"""
-        }
-      }
-      p{t"""Using ${a{href("https://dotty.epfl.ch/docs/reference/contextual/context-functions.html#example-builder-pattern"); target("_blank"); t"Context Functions"}} in this way allows Shaka to efficiently build and manage Bindings."""}
+//      p{t"Frag is a type that operates on a given parent Element and Binding. A 'given' (aka implicit) parameter is just one that we don't need to specify, although we can if we really want to:"}
+//      pre{
+//        code{cls("scala doc-code")
+//          t"""def explicitHello(name: String): Frag = Frag {
+//             |  (parentElement: Element, parentBinding: Binding[?]) ?=>
+//             |    import builders.{name as _, *}
+//             |
+//             |    h1{h1Element ?=>
+//             |      "hello world".t(using h1Element)
+//             |    }(using parentElement)
+//             |}
+//             |"""
+//        }
+//      }
+//      p{t"""Using ${a{href("https://dotty.epfl.ch/docs/reference/contextual/context-functions.html#example-builder-pattern"); target("_blank"); t"Context Functions"}} in this way allows Shaka to efficiently build and manage Bindings."""}
       p{t"The Component trait defines two methods: template, which returns a Frag, and render, which uses the template to render the component. Render should only be overridden when implementing new Component types. For example, WebComponent overrides render to wrap the component in a Custom Element, allowing you to use shadow-dom and lifecycle callbacks."}
       p{t"Notice that the builder methods are implemented with plain Scala code. That means you can can put anything inside them, including vals and for loops. As long as the template remains a pure function of component state, the possibilities are endless."}
       h2WithAnchor("starter-code", "Starter Code").render
@@ -112,7 +112,7 @@ class Tutorial extends Component:
       pre{
         code{cls("scala doc-code")
           t"""class Square(position: Int) extends Component:
-             |  override val template = Frag {
+             |  def template = Frag {
              |    import builders.{position as _, *}
              |    button{className("square"); t"$$position"}
              |  }
@@ -123,7 +123,7 @@ class Tutorial extends Component:
       pre{
         code{cls("scala doc-code")
           t"""class Board extends Component:
-             |  override val template = Frag {
+             |  def template = Frag {
              |    import builders.*
              |
              |    val status = "Next player: X"
@@ -151,7 +151,7 @@ class Tutorial extends Component:
       pre{
         code{cls("scala doc-code")
           t"""class Square extends Component:
-             |  override val template = Frag {
+             |  def template = Frag {
              |    import builders.*
              |    button{className("square"); onclick(_ => window.alert("clicked"))}
              |  }
@@ -168,7 +168,7 @@ class Tutorial extends Component:
           t"""class Square extends Component:
              |  private val wasClicked: OpenState[Boolean] = useState(false)
              |
-             |  override val template = Frag {
+             |  def template = Frag {
              |    import builders.*
              |    button{className("square"); onclick(_ => wasClicked.setValue(true))
              |      wasClicked.bind(clicked =>
@@ -200,6 +200,7 @@ class Tutorial extends Component:
              |import SquareValue.*
              |
              |case class Game(xIsNext: Boolean, boardState: IArray[SquareValue])
+             |
              |val InitialGameState = Game(true, IArray.fill(9)(Empty))
              |"""
         }
@@ -223,7 +224,7 @@ class Tutorial extends Component:
       pre{
         code{cls("scala doc-code")
           t"""class Square(position: Int) extends Component:
-             |  override val template = Frag {
+             |  def template = Frag {
              |    import builders.{position as _, *}
              |
              |    button{className("square"); onclick(_ => GameState.setSquare(position))
@@ -237,7 +238,7 @@ class Tutorial extends Component:
       pre{
         code{cls("scala doc-code")
           t"""class Board extends Component:
-             |  override val template = Frag {
+             |  def template = Frag {
              |    import builders.*
              |
              |    val nextPlayer = Frag {
@@ -301,7 +302,7 @@ class Tutorial extends Component:
       pre{
         code{cls("scala doc-code")
           t"""class Board extends Component:
-             |  override val template = Frag {
+             |  def template = Frag {
              |    import builders.*
              |
              |    val status = Frag {
@@ -389,7 +390,7 @@ class Tutorial extends Component:
       pre{
         code{cls("scala doc-code")
           t"""class Square(position: Int) extends Component:
-             |  override val template = Frag {
+             |  def template = Frag {
              |    import builders.{position as _, *}
              |
              |    button{className("square"); onclick(_ => GameState.setSquare(position))
@@ -403,7 +404,7 @@ class Tutorial extends Component:
       pre{
         code{cls("scala doc-code")
           t"""class Board extends Component:
-             |  override val template = Frag {
+             |  def template = Frag {
              |    import builders.*
              |
              |    div{
@@ -421,7 +422,7 @@ class Tutorial extends Component:
       p{t"And finally, we can implement the todos in TicTacToe. Every history entry available can be jumped to by clicking the list."}
       pre{
         code{cls("scala doc-code")
-          t"""override val template = Frag {
+          t"""def template = Frag {
              |  import builders.*
              |
              |  val status = Frag {

@@ -7,7 +7,7 @@ import scala.util.matching.Regex
 
 class Docs extends Component:
   
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     div{cls("doc-body")
       div{
@@ -33,7 +33,7 @@ class Docs extends Component:
         pre{
           code{cls("scala doc-code")
             t"""class HelloMessage(user: String) extends Component:
-               |  override val template = Frag {
+               |  def template = Frag {
                |    import builders.*
                |
                |    div{
@@ -207,7 +207,7 @@ class Docs extends Component:
             t"""class ClickHole extends Component:
                |  private val numClicks = useState(0)
                |
-               |  override val template = Frag {
+               |  def template = Frag {
                |    import builders.*
                |
                |    button{onclick(() => numClicks.value += 1)

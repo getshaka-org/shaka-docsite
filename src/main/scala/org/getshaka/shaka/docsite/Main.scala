@@ -10,7 +10,7 @@ import org.scalajs.dom.{Event, HTMLElement, MouseEvent, document}
 
 class Main extends Component:
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
 
     def updateFlashlight(e: MouseEvent): Unit =

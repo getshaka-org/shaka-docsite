@@ -10,7 +10,7 @@ import scala.collection.Seq
 import scala.collection.mutable.Buffer
 
 class HelloMessage(user: String) extends Component:
-  override val template = Frag {
+  def template = Frag {
     import builders.*
 
     div{color("purple"); p{t"Hello $user"}}
@@ -29,11 +29,11 @@ class Timer extends WebComponent:
   override def disconnectedCallback(): Unit =
     clearInterval(interval)
 
-  override val shadowDom = ShadowDom.WithStyle(
+  override def shadowDom = ShadowDom.WithStyle(
     " div { color: green; } "
   )
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     seconds.bind(value => t"Seconds: $value")
   }
@@ -44,7 +44,7 @@ class TodoApp extends Component:
   private val items = useState(IArray.empty[Item])
   private val text = useState("")
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     div{
       h3{color("royalblue"); t"TODO"}
@@ -78,7 +78,7 @@ class TodoApp extends Component:
 
 
 class TodoList(items: Seq[Item]) extends Component:
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     ul{
       for item <- items do
@@ -97,7 +97,7 @@ class MarkdownEditor extends Component:
   private val mdHtml = useState(
     remarkable.render(initialMd))
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
 
     div{
@@ -126,7 +126,7 @@ class MarkdownEditor extends Component:
 
 class ShoppingList(userName: String) extends Component:
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     div{className("shopping-list")
       h1{t"Shopping list for $userName"}
@@ -215,7 +215,7 @@ val TicTacStyles = ShadowDom.WithStyle(
 class TicTac1 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -229,13 +229,13 @@ class TicTac1 extends WebComponent:
   }
 
   class Square extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.*
       button{className("square") /* todo */}
     }
 
   class Board extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.*
 
       val status = "Next player: X"
@@ -265,7 +265,7 @@ end TicTac1
 class TicTac2 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -279,13 +279,13 @@ class TicTac2 extends WebComponent:
   }
 
   class Square(position: Int) extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.{position as _, *}
       button{className("square"); t"$position"}
     }
 
   class Board extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.*
 
       val status = "Next player: X"
@@ -307,7 +307,7 @@ end TicTac2
 class TicTac3 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -321,13 +321,13 @@ class TicTac3 extends WebComponent:
   }
 
   class Square extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.*
       button{className("square"); onclick(_ => window.alert("clicked"))}
     }
 
   class Board extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.*
 
       val status = "Next player: X"
@@ -347,7 +347,7 @@ end TicTac3
 class TicTac4 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -363,7 +363,7 @@ class TicTac4 extends WebComponent:
   class Square extends Component:
     private val wasClicked: OpenState[Boolean] = useState(false)
 
-    override val template = Frag {
+    def template = Frag {
       import builders.*
       button{className("square"); onclick(_ => wasClicked.setValue(true))
         wasClicked.bind(clicked =>
@@ -373,7 +373,7 @@ class TicTac4 extends WebComponent:
     }
 
   class Board extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.*
 
       val status = "Next player: X"
@@ -402,7 +402,7 @@ class TicTac5 extends WebComponent:
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -416,7 +416,7 @@ class TicTac5 extends WebComponent:
   }
 
   class Square(position: Int) extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.{position as _, *}
 
       button{className("square"); onclick(_ => GameState.setSquare(position))
@@ -425,7 +425,7 @@ class TicTac5 extends WebComponent:
     }
 
   class Board extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.*
 
       val nextPlayer = Frag {
@@ -466,7 +466,7 @@ class TicTac6 extends WebComponent:
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -480,7 +480,7 @@ class TicTac6 extends WebComponent:
   }
 
   class Square(position: Int) extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.{position as _, *}
 
       button{className("square"); onclick(_ => GameState.setSquare(position))
@@ -489,7 +489,7 @@ class TicTac6 extends WebComponent:
     }
 
   class Board extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.*
 
       val status = Frag {
@@ -554,7 +554,7 @@ class TicTac7 extends WebComponent:
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
 
     val status = Frag {
@@ -586,7 +586,7 @@ class TicTac7 extends WebComponent:
   }
 
   class Square(position: Int) extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.{position as _, *}
 
       button{className("square"); onclick(_ => GameState.setSquare(position))
@@ -595,7 +595,7 @@ class TicTac7 extends WebComponent:
     }
 
   class Board extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.*
 
       div{
@@ -662,7 +662,7 @@ class TicTac8 extends WebComponent:
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
 
     val status = Frag {
@@ -694,7 +694,7 @@ class TicTac8 extends WebComponent:
   }
 
   class Square(position: Int) extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.{position as _, *}
 
       button{className("square"); onclick(_ => GameState.setSquare(position))
@@ -703,7 +703,7 @@ class TicTac8 extends WebComponent:
     }
 
   class Board extends Component:
-    override val template = Frag {
+    def template = Frag {
       import builders.*
 
       div{
@@ -771,7 +771,7 @@ object TicTac8:
 class ClickHole extends Component:
   private val numClicks = useState(0)
   
-  override val template = Frag {
+  def template = Frag {
     import builders.*
 
     button{onclick(_ => numClicks.setValue(_ + 1))
@@ -782,14 +782,14 @@ class ClickHole extends Component:
 
 class CustomTag extends Component:
   
-  override val template = Frag {
+  def template = Frag {
     import builders.{tag, t}
     inline def FIXML(init: HTMLParagraphElement ?=> Unit)(using Element): Unit = tag("FIXML")(init)
     FIXML{t"100 shares"}
   }
 
 class CustomCssProp extends Component:
-  override val template = Frag {
+  def template = Frag {
     import builders.{p, t, cssProp}
     inline def border(style: String)(using HTMLElement): Unit = cssProp("border")(style)
     p{border("solid")
@@ -798,7 +798,7 @@ class CustomCssProp extends Component:
   }
 
 class CustomJsProp extends Component:
-  override val template = Frag {
+  def template = Frag {
     import builders.{p, t, prop}
     inline def onclick(fn: Event => Unit)(using Element): Unit = prop("onclick")(fn)
     p{onclick(_ => window.alert("clicked!"))

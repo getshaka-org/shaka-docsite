@@ -9,7 +9,7 @@ import scala.util.matching.Regex
 
 class Home extends Component:
 
-  override val template = Frag {
+  def template = Frag {
     import builders.*
 
     div{id("title-box")
@@ -57,7 +57,7 @@ class Home extends Component:
         div{cls("example-descr")
           h2{t"A Simple Component"}
           p{
-            t"""A Shaka Component has a template, which should be declarative and implemented as a val.
+            t"""Shaka Components have a template that is used during rendering.
                |
                |The builders package has methods to construct DOM. div builds a div Element, color applies the CSS property, and 't' interpolates TextNodes.
                |"""
@@ -72,7 +72,7 @@ class Home extends Component:
                  |
                  |class HelloMessage(user: String) extends Component:
                  |
-                 |  override val template = Frag {
+                 |  def template = Frag {
                  |    import builders.*
                  |
                  |    div {
@@ -157,11 +157,11 @@ class Home extends Component:
                  |  override def disconnectedCallback(): Unit =
                  |    clearInterval(interval)
                  |
-                 |  override val shadowDom = ShadowDom.WithStyle(
+                 |  override def shadowDom = ShadowDom.WithStyle(
                  |    " div { color: green; } "
                  |  )
                  |
-                 |  override val template = Frag {
+                 |  def template = Frag {
                  |    import builders.*
                  |    seconds.bind(value => t"Seconds: $$value")
                  |  }
@@ -198,7 +198,7 @@ class Home extends Component:
                  |  private val items = useState(IArray.empty[Item])
                  |  private val text = useState("")
                  |
-                 |  override val template = Frag {
+                 |  def template = Frag {
                  |    import builders.*
                  |    div{
                  |      h3{color("royalblue"); t"TODO"}
@@ -233,7 +233,7 @@ class Home extends Component:
                  |
                  |
                  |class TodoList(items: Seq[Item]) extends Component:
-                 |  override val template = Frag {
+                 |  def template = Frag {
                  |    import builders.*
                  |    ul{
                  |      for item <- items do
@@ -278,7 +278,7 @@ class Home extends Component:
                  |  private val mdHtml = useState(
                  |    remarkable.render(initialMd))
                  |
-                 |  override val template = Frag {
+                 |  def template = Frag {
                  |    import builders.*
                  |
                  |    div{

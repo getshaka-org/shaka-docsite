@@ -6,7 +6,7 @@ import scala.util.matching.Regex
 
 class GetStarted extends Component:
   
-  override val template = Frag {
+  def template = Frag {
     import builders.*
     div{cls("doc-body")
       div{
