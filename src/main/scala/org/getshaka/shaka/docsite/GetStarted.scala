@@ -1,17 +1,13 @@
 package org.getshaka.shaka.docsite
 
-import org.getshaka.shaka
-import org.getshaka.shaka.{Binding, Component, ComponentBuilder, Element}
-import org.getshaka.shaka.router.Routable
+import org.getshaka.shaka.*
 
 import scala.util.matching.Regex
 
-class GetStarted extends Component with Routable:
+class GetStarted extends Component:
   
-  override val path: Regex = "/get-started".r
-  
-  override val template: ComponentBuilder =
-    import shaka.builders._
+  override val template = Frag {
+    import builders.*
     div{cls("doc-body")
       div{
         h1{cls("doc-title"); t"Get Started"}
@@ -19,19 +15,20 @@ class GetStarted extends Component with Routable:
         p{t"The fastest way to get Shaka is by ${a{href("https://www.scala-lang.org/download/"); target("_blank"); t"installing Scala with SBT"}} and generating a starter project:"}
         pre{
           code{cls("scala doc-code")
-            """sbt new getshaka-org/shaka.g8
-              |""".stripMargin.t
+            t"""sbt new augustnagro/shaka.g8
+               |"""
           }
         }
-        p{t"It's recommended to start with the ${a{href("tutorial"); t"Tutorial"}}. Otherwise, check out the ${a{href("doct"); "Documentation".t}} or ${a{href("https://javadoc.io/doc/org.getshaka/shaka_sjs1_3/latest/api/org/getshaka/shaka.html"); target("_blank"); t"ScalaDoc"}}. Finally, you're welcome to file any question, bug, or feature request on the ${a{href("https://github.com/getshaka-org/shaka"); target("_blank"); t"Github project"}}."}
+        p{t"It's recommended to start with the ${a{href("tutorial"); t"Tutorial"}}. Otherwise, check out the ${a{href("doct"); "Documentation".t}}. Finally, you're welcome to file any question, bug, or feature request on the ${a{href("https://github.com/getshaka-org/shaka"); target("_blank"); t"Github project"}}."}
         br{}
         br{}
         img{src("img/shaka-windsurf.jpg"); width("100%"); alt("shaka windsurfer")}
-        p{t"Windsurfer Amado Vrieswijk sending the 'Shaka'. Photo credit: continentseven.com"}
+        p{t"Windsurfer Amado Vrieswijk performing the 'Shaka'. Photo credit: continentseven.com"}
       }
     }
   
     highlightScala()
+  }
   
   end template
     

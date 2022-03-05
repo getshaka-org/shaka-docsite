@@ -1,48 +1,46 @@
 package org.getshaka.shaka.docsite
 
-import org.getshaka.shaka
-import org.getshaka.shaka.{Binding, Component, ComponentBuilder, Element, WebComponent}
+import org.getshaka.shaka.*
 import org.getshaka.shaka.router.Router
 
 import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
+import org.scalajs.dom.{Event, HTMLElement, MouseEvent, document}
 
 class Main extends Component:
 
-  override val template: ComponentBuilder =
-    import shaka.builders._
+  override val template = Frag {
+    import builders.*
 
-    val doc = js.Dynamic.global.document
+    def updateFlashlight(e: MouseEvent): Unit =
+      val x = e.clientX
+      val y = e.clientY
+      document.body.style.setProperty("--cursorX", s"${x}px")
+      document.body.style.setProperty("--cursorY", s"${y}px")
 
-    def updateFlashlight(e: js.Dynamic): Unit =
-      val event = e.asInstanceOf[js.Dynamic]
-      val x = event.clientX.asInstanceOf[Double]
-      val y = event.clientY.asInstanceOf[Double]
-      doc.body.style.setProperty("--cursorX", s"${x}px")
-      doc.body.style.setProperty("--cursorY", s"${y}px")
-
-    doc.addEventListener("mousemove", updateFlashlight)
+    document.addEventListener("mousemove", e => updateFlashlight(e))
 
     var darkMode = false
-    def toggleDarkMode(e: js.Dynamic): Unit =
+    def toggleDarkMode(e: Event): Unit =
       darkMode = !darkMode
-      if darkMode then doc.body.classList.add("flashlight")
-      else doc.body.classList.remove("flashlight")
+      if darkMode then document.body.classList.add("flashlight")
+      else document.body.classList.remove("flashlight")
 
     var showMobileMenu = false
-    def toggleMobileMenu(e: js.Dynamic): Unit =
+    def toggleMobileMenu(e: Event): Unit =
       showMobileMenu = !showMobileMenu
-      if showMobileMenu then doc.querySelector("#mobile-menu").style.display = "flex"
-      else doc.querySelector("#mobile-menu").style.display = "none"
+      if showMobileMenu then
+        document.querySelector("#mobile-menu").asInstanceOf[HTMLElement].style.display = "flex"
+      else
+        document.querySelector("#mobile-menu").asInstanceOf[HTMLElement].style.display = "none"
 
-    val homePage = Home()
-    val router = Router()
-      .route(GetStarted())
-      .route(Tutorial())
-      .route(Docs())
-      .route(homePage)
-      .catchAll(homePage)
+    Router
+      .route("/".r, _ => Home())
+      .route("/get-started".r, _ => GetStarted())
+      .route("/tutorial".r, _ => Tutorial())
+      .route("/docs".r, _ => Docs())
+      .catchAll(_ => Home())
 
     header{
       div{id("mobile-menu")
@@ -71,7 +69,7 @@ class Main extends Component:
     }
 
     main{
-      router.render
+      Router.render
     }
     footer{
       div{id("footer-box-links")
@@ -83,7 +81,8 @@ class Main extends Component:
         }
       }
     }
+  }
   end template
 
-@main def launchApp: Unit = shaka.render(Main())
+@main def launchApp(): Unit = render(Main(), document.body)
 

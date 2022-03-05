@@ -2,8 +2,7 @@ package org.getshaka.shaka.docsite
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
-import org.getshaka.shaka.Element
-import org.getshaka.shaka.builders.ElementBuilder
+import org.scalajs.dom.Element
 
 import scala.concurrent.Future
 
@@ -12,6 +11,6 @@ import scala.concurrent.Future
 object hljs extends js.Object:
   def highlightBlock(block: js.Any): Unit = js.native
 
-def highlightScala()(using parentElement: Element): Unit = 
-  parentElement.asInstanceOf[js.Dynamic].querySelectorAll("pre code")
-    .forEach(block => hljs.highlightBlock(block))
+def highlightScala()(using parentElement: Element): Unit =
+  for block <- parentElement.querySelectorAll("pre code") do
+    hljs.highlightBlock(block)

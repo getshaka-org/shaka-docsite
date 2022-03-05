@@ -1,44 +1,51 @@
 package org.getshaka.shaka.docsite
 
 import org.getshaka.nativeconverter.NativeConverter
-import org.getshaka.shaka
-import org.getshaka.shaka.{Component, ComponentBuilder, Element, State, WebComponent, LocalStorage, OpenState, ShadowDom}
+import org.getshaka.shaka.*
+import org.scalajs.dom.*
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
 import scala.collection.Seq
 import scala.collection.mutable.Buffer
 
-
 class HelloMessage(user: String) extends Component:
-  override def template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
 
     div{color("purple"); p{t"Hello $user"}}
+  }
+
+import scala.scalajs.js.timers.*
+import scala.concurrent.duration.*
 
 class Timer extends WebComponent:
-  private val seconds = shaka.useState(0)
-  private var interval: js.Dynamic = null
+  private val seconds = useState(0)
+  private var interval: SetIntervalHandle = null
 
   override def connectedCallback(): Unit =
-    interval = js.Dynamic.global
-      .setInterval(() => seconds.setValue(_ + 1), 1000)
+    interval = setInterval(1.second)(seconds.setValue(_ + 1))
 
   override def disconnectedCallback(): Unit =
-    js.Dynamic.global.clearInterval(interval)
+    clearInterval(interval)
 
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val shadowDom = ShadowDom.WithStyle(
+    " div { color: green; } "
+  )
+
+  override val template = Frag {
+    import builders.*
     seconds.bind(value => t"Seconds: $value")
+  }
 
 case class Item(date: js.Date, text: String)
 
 class TodoApp extends Component:
-  private val items = shaka.useState(IArray.empty[Item])
-  private val text = shaka.useState("")
+  private val items = useState(IArray.empty[Item])
+  private val text = useState("")
 
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
     div{
       h3{color("royalblue"); t"TODO"}
       items.bind(TodoList(_).render)
@@ -58,26 +65,26 @@ class TodoApp extends Component:
           t"Add #${i.size + 1}")}
       }
     }
+  }
 
-  private def handleSubmit(e: js.Dynamic): Unit =
+  private def handleSubmit(e: Event): Unit =
     e.preventDefault()
     if text.value.isEmpty then return
     items.setValue(_ :+ Item(new js.Date, text.value))
     text.setValue("")
 
-  private def handleChange(e: js.Dynamic): Unit =
-    text.setValue(e.target.value.asInstanceOf[String])
+  private def handleChange(e: Event): Unit =
+    text.setValue(e.target.asInstanceOf[HTMLInputElement].value)
 
 
 class TodoList(items: Seq[Item]) extends Component:
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
     ul{
       for item <- items do
         li{item.text.t}
     }
-
-import org.getshaka.shaka.useState
+  }
 
 @js.native
 @JSGlobal("remarkable.Remarkable")
@@ -90,8 +97,8 @@ class MarkdownEditor extends Component:
   private val mdHtml = useState(
     remarkable.render(initialMd))
 
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
 
     div{
       h3{t"Input"}
@@ -111,46 +118,49 @@ class MarkdownEditor extends Component:
         }
       )
     }
+  }
 
-  private def updateMarkdown(e: js.Dynamic): Unit =
-    val input = e.target.value.asInstanceOf[String]
+  private def updateMarkdown(e: Event): Unit =
+    val input = e.target.asInstanceOf[HTMLTextAreaElement].value
     mdHtml.setValue(remarkable.render(input))
 
-class ShoppingList(name: String) extends Component:
+class ShoppingList(userName: String) extends Component:
 
-  override def template: ComponentBuilder =
-    import shaka.builders.{name as _, *}
+  override val template = Frag {
+    import builders.*
     div{className("shopping-list")
-      h1{t"Shopping list for $name"}
+      h1{t"Shopping list for $userName"}
       ul{
         li{t"Scala 3 Books"}
         li{t"Scala.js Tutorials"}
         li{t"Cooking guides!"}
       }
     }
+  }
 
-def shoppingList(name: String): ComponentBuilder =
-  import shaka.builders.{name as _, *}
+def shoppingList(userName: String): Frag = Frag {
+  import builders.*
   div{className("shopping-list")
-    h1{t"Shopping list for $name"}
+    h1{t"Shopping list for $userName"}
     ul{
       li{t"Scala 3 Books"}
       li{t"Scala.js Tutorials"}
       li{t"Cooking guides!"}
     }
   }
+}
 
-import shaka.Binding
-
-def explicitHello(name: String): ComponentBuilder =
+def explicitHello(name: String): Frag = Frag {
   (parentElement: Element, parentBinding: Binding[?]) ?=>
-    import shaka.builders.{name as _, *}
+    import builders.{name as _, *}
     
     h1{h1Element ?=>
       "hello world".t(using h1Element)
     }(using parentElement)
+}
 
 val TicTacStyles = ShadowDom.WithStyle(
+  //language=CSS
   """
     |
     |ol, ul {
@@ -205,8 +215,8 @@ val TicTacStyles = ShadowDom.WithStyle(
 class TicTac1 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
     div{className("game")
       div{className("game-board")
         Board().render
@@ -216,47 +226,47 @@ class TicTac1 extends WebComponent:
         ol{/* todo */}
       }
     }
+  }
 
   class Square extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.*
+    override val template = Frag {
+      import builders.*
       button{className("square") /* todo */}
+    }
 
   class Board extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.*
-
-      def renderSquare(i: Int): ComponentBuilder =
-        Square().render
+    override val template = Frag {
+      import builders.*
 
       val status = "Next player: X"
 
       div{
         div{className("status"); status.t}
         div{className("board-row")
-          renderSquare(0)
-          renderSquare(1)
-          renderSquare(2)
+          Square().render
+          Square().render
+          Square().render
         }
         div{className("board-row")
-          renderSquare(3)
-          renderSquare(4)
-          renderSquare(5)
+          Square().render
+          Square().render
+          Square().render
         }
         div{className("board-row")
-          renderSquare(6)
-          renderSquare(7)
-          renderSquare(8)
+          Square().render
+          Square().render
+          Square().render
         }
       }
+    }
     end template
 end TicTac1
 
 class TicTac2 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
     div{className("game")
       div{className("game-board")
         Board().render
@@ -266,18 +276,17 @@ class TicTac2 extends WebComponent:
         ol{/* todo */}
       }
     }
+  }
 
   class Square(position: Int) extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.{position as _, *}
+    override val template = Frag {
+      import builders.{position as _, *}
       button{className("square"); t"$position"}
+    }
 
   class Board extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.*
-
-      def renderSquare(i: Int): ComponentBuilder =
-        Square(position = i).render
+    override val template = Frag {
+      import builders.*
 
       val status = "Next player: X"
 
@@ -285,11 +294,12 @@ class TicTac2 extends WebComponent:
         div{className("status"); status.t}
         for i <- 0 until 9 by 3 do
           div{className("board-row")
-            renderSquare(i)
-            renderSquare(i + 1)
-            renderSquare(i + 2)
+            Square(i).render
+            Square(i + 1).render
+            Square(i + 2).render
           }
       }
+    }
     end template
 end TicTac2
 
@@ -297,8 +307,8 @@ end TicTac2
 class TicTac3 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
     div{className("game")
       div{className("game-board")
         Board().render
@@ -308,18 +318,17 @@ class TicTac3 extends WebComponent:
         ol{/* todo */}
       }
     }
+  }
 
   class Square extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.*
-      button{className("square"); onclick(() => js.Dynamic.global.alert("clicked"))}
+    override val template = Frag {
+      import builders.*
+      button{className("square"); onclick(_ => window.alert("clicked"))}
+    }
 
   class Board extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.*
-
-      def renderSquare(i: Int): ComponentBuilder =
-        Square().render
+    override val template = Frag {
+      import builders.*
 
       val status = "Next player: X"
 
@@ -327,18 +336,19 @@ class TicTac3 extends WebComponent:
         div{className("status"); status.t}
         for i <- 0 until 9 by 3 do
           div{className("board-row")
-            renderSquare(i)
-            renderSquare(i + 1)
-            renderSquare(i + 2)
+            Square().render
+            Square().render
+            Square().render
           }
       }
+    }
 end TicTac3
 
 class TicTac4 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
     div{className("game")
       div{className("game-board")
         Board().render
@@ -348,24 +358,23 @@ class TicTac4 extends WebComponent:
         ol{/* todo */}
       }
     }
+  }
 
   class Square extends Component:
-    private val wasClicked: OpenState[Boolean] = shaka.useState(false)
+    private val wasClicked: OpenState[Boolean] = useState(false)
 
-    override val template: ComponentBuilder =
-      import shaka.builders.*
-      button{className("square"); onclick(() => wasClicked.setValue(true))
+    override val template = Frag {
+      import builders.*
+      button{className("square"); onclick(_ => wasClicked.setValue(true))
         wasClicked.bind(clicked =>
           if clicked then t"X" else t""
         )
       }
+    }
 
   class Board extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.*
-
-      def renderSquare(i: Int): ComponentBuilder =
-        Square().render
+    override val template = Frag {
+      import builders.*
 
       val status = "Next player: X"
 
@@ -373,11 +382,12 @@ class TicTac4 extends WebComponent:
         div{className("status"); status.t}
         for i <- 0 until 9 by 3 do
           div{className("board-row")
-            renderSquare(i)
-            renderSquare(i + 1)
-            renderSquare(i + 2)
+            Square().render
+            Square().render
+            Square().render
           }
       }
+    }
 end TicTac4
 
 enum SquareValue(val display: String):
@@ -392,8 +402,8 @@ class TicTac5 extends WebComponent:
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
     div{className("game")
       div{className("game-board")
         Board().render
@@ -403,24 +413,24 @@ class TicTac5 extends WebComponent:
         ol{/* todo */}
       }
     }
+  }
 
   class Square(position: Int) extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.{position as _, *}
+    override val template = Frag {
+      import builders.{position as _, *}
 
-      button{className("square"); onclick(() => GameState.setSquare(position))
+      button{className("square"); onclick(_ => GameState.setSquare(position))
         GameState.bind(_.boardState(position).display.t)
       }
+    }
 
   class Board extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.*
+    override val template = Frag {
+      import builders.*
 
-      def renderSquare(i: Int): ComponentBuilder =
-        Square(position = i).render
-
-      val nextPlayer: ComponentBuilder =
+      val nextPlayer = Frag {
         GameState.bind(s => if s.xIsNext then t"X" else t"O")
+      }
 
       div{
         div{className("status")
@@ -428,17 +438,19 @@ class TicTac5 extends WebComponent:
         }
         for i <- 0 until 9 by 3 do
           div{className("board-row")
-            renderSquare(i)
-            renderSquare(i + 1)
-            renderSquare(i + 2)
+            Square(i).render
+            Square(i + 1).render
+            Square(i + 2).render
           }
       }
+    }
 end TicTac5
 object TicTac5:
 
   case class Game(xIsNext: Boolean, boardState: IArray[SquareValue])
+  val InitialGameState = Game(true, IArray.fill(9)(Empty))
 
-  object GameState extends State(Game(true, IArray.fill(9)(Empty))):
+  object GameState extends State(InitialGameState):
 
     def setSquare(position: Int): Unit =
       if value.boardState(position) != Empty then return
@@ -454,8 +466,8 @@ class TicTac6 extends WebComponent:
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
     div{className("game")
       div{className("game-board")
         Board().render
@@ -465,45 +477,47 @@ class TicTac6 extends WebComponent:
         ol{/* todo */}
       }
     }
+  }
 
   class Square(position: Int) extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.{position as _, *}
+    override val template = Frag {
+      import builders.{position as _, *}
 
-      button{className("square"); onclick(() => GameState.setSquare(position))
+      button{className("square"); onclick(_ => GameState.setSquare(position))
         GameState.bind(_.boardState(position).display.t)
       }
+    }
 
   class Board extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.*
+    override val template = Frag {
+      import builders.*
 
-      def renderSquare(i: Int): ComponentBuilder =
-        Square(position = i).render
-
-      val status: ComponentBuilder =
+      val status = Frag {
         GameState.bind(s => calculateWinner(s.boardState) match
           case X => t"Winner: X"
           case O => t"Winner: O"
           case Empty => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
         )
+      }
 
       div{
         div{className("status")
-          status
+          status.render
         }
         for i <- 0 until 9 by 3 do
           div{className("board-row")
-            renderSquare(i)
-            renderSquare(i + 1)
-            renderSquare(i + 2)
+            Square(i).render
+            Square(i + 1).render
+            Square(i + 2).render
           }
       }
+    }
 end TicTac6
 private object TicTac6:
   case class Game(xIsNext: Boolean, boardState: IArray[SquareValue])
+  val InitialGameState = Game(true, IArray.fill(9)(Empty))
 
-  object GameState extends State(Game(true, IArray.fill(9)(Empty))):
+  object GameState extends State(InitialGameState):
 
     def setSquare(position: Int): Unit =
       if value.boardState(position) != Empty
@@ -527,77 +541,80 @@ private object TicTac6:
   )
 
   def calculateWinner(boardState: IArray[SquareValue]): SquareValue =
-    for IArray(a, b, c) <- lines do
-      if
-        boardState(a) != Empty &&
-        boardState(a) == boardState(b) &&
-        boardState(a) == boardState(c)
-      then return boardState(a)
-    return Empty
+    lines.collectFirst {
+      case IArray(a, b, c)
+        if boardState(a) != Empty
+          && boardState(a) == boardState(b)
+          && boardState(a) == boardState(c)
+        => boardState(a)
+    }.getOrElse(Empty)
 
 class TicTac7 extends WebComponent:
   import TicTac7.*
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
 
-    val status: ComponentBuilder =
+    val status = Frag {
       GameState.bind(s => calculateWinner(s.history(s.stepNumber)) match
         case X => t"Winner: X"
         case O => t"Winner: O"
         case Empty => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
       )
+    }
 
-    val moves: ComponentBuilder =
+    val moves = Frag {
       GameState.bind(_.history.indices.foreach(move =>
         val desc =
           if move > 0 then "Go to move #" + move
           else "Go to game start"
-        li{button{onclick(() => GameState.jumpTo(move)); desc.t}}
+        li{button{onclick(_ => GameState.jumpTo(move)); desc.t}}
       ))
+    }
 
     div{className("game")
       div{className("game-board")
         Board().render
       }
       div{className("game-info")
-        div{status}
-        ol{moves}
+        div{status.render}
+        ol{moves.render}
+      }
+    }
+  }
+
+  class Square(position: Int) extends Component:
+    override val template = Frag {
+      import builders.{position as _, *}
+
+      button{className("square"); onclick(_ => GameState.setSquare(position))
+        GameState.bind(s => s.history(s.stepNumber)(position).display.t)
       }
     }
 
-  class Square(position: Int) extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.{position as _, *}
-
-      button{className("square"); onclick(() => GameState.setSquare(position))
-        GameState.bind(s => s.history(s.stepNumber)(position).display.t)
-      }
-
   class Board extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.*
-
-      def renderSquare(i: Int): ComponentBuilder =
-        Square(position = i).render
+    override val template = Frag {
+      import builders.*
 
       div{
         for i <- 0 until 9 by 3 do
           div{className("board-row")
-            renderSquare(i)
-            renderSquare(i + 1)
-            renderSquare(i + 2)
+            Square(i).render
+            Square(i + 1).render
+            Square(i + 2).render
           }
       }
+    }
 end TicTac7
 object TicTac7:
   type BoardState = IArray[SquareValue]
 
   case class Game(xIsNext: Boolean, stepNumber: Int, history: IArray[BoardState])
+  val InitialGameState = Game(true, 0, IArray(IArray.fill(9)(Empty)))
 
-  object GameState extends State(Game(true, 0, IArray(IArray.fill(9)(Empty)))):
+  object GameState extends State(InitialGameState):
 
     def setSquare(position: Int): Unit =
       val hist = value.history.slice(0, value.stepNumber + 1)
@@ -631,76 +648,85 @@ object TicTac7:
     IArray(2, 4, 6)
   )
 
-  def calculateWinner(squares: IArray[SquareValue]): SquareValue =
-    for IArray(a, b, c) <- lines do
-      if
-        squares(a) != Empty &&
-        squares(a) == squares(b) &&
-        squares(a) == squares(c)
-      then return squares(a)
-    return Empty
+  def calculateWinner(boardState: IArray[SquareValue]): SquareValue =
+    lines.collectFirst {
+      case IArray(a, b, c)
+        if boardState(a) != Empty
+          && boardState(a) == boardState(b)
+          && boardState(a) == boardState(c)
+        => boardState(a)
+    }.getOrElse(Empty)
 
 class TicTac8 extends WebComponent:
   import TicTac8.*
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
 
-    val status: ComponentBuilder =
+    val status = Frag {
       GameState.bind(s => calculateWinner(s.history(s.stepNumber)) match
         case X => t"Winner: X"
         case O => t"Winner: O"
         case Empty => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
       )
+    }
 
-    val moves: ComponentBuilder =
+    val moves = Frag {
       GameState.bind(_.history.indices.foreach(move =>
         val desc =
           if move > 0 then "Go to move #" + move
           else "Go to game start"
-        li{button{onclick(() => GameState.jumpTo(move)); desc.t}}
+        li{button{onclick(_ => GameState.jumpTo(move)); desc.t}}
       ))
+    }
 
     div{className("game")
       div{className("game-board")
         Board().render
       }
       div{className("game-info")
-        div{status}
-        ol{moves}
+        div{status.render}
+        ol{moves.render}
+      }
+    }
+  }
+
+  class Square(position: Int) extends Component:
+    override val template = Frag {
+      import builders.{position as _, *}
+
+      button{className("square"); onclick(_ => GameState.setSquare(position))
+        GameState.bind(s => s.history(s.stepNumber)(position).display.t)
       }
     }
 
-  class Square(position: Int) extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.{position as _, *}
-
-      button{className("square"); onclick(() => GameState.setSquare(position))
-        GameState.bind(s => s.history(s.stepNumber)(position).display.t)
-      }
-
   class Board extends Component:
-    override val template: ComponentBuilder =
-      import shaka.builders.*
-
-      def renderSquare(i: Int): ComponentBuilder =
-        Square(position = i).render
+    override val template = Frag {
+      import builders.*
 
       div{
         for i <- 0 until 9 by 3 do
           div{className("board-row")
-            renderSquare(i)
-            renderSquare(i + 1)
-            renderSquare(i + 2)
+            Square(i).render
+            Square(i + 1).render
+            Square(i + 2).render
           }
       }
+    }
 end TicTac8
 object TicTac8:
-  case class Game(xIsNext: Boolean, stepNumber: Int, history: IArray[IArray[SquareValue]]) derives NativeConverter
   
-  object GameState extends State(Game(true, 0, IArray(IArray.fill(9)(Empty))), LocalStorage("game-state")):
+  case class Game(
+    xIsNext: Boolean,
+    stepNumber: Int,
+    history: IArray[IArray[SquareValue]]
+  ) derives NativeConverter
+  
+  val InitialGameState = Game(true, 0, IArray(IArray.fill(9)(Empty)))
+  
+  object GameState extends State(InitialGameState, LocalStorage("game-state")):
 
     def setSquare(position: Int): Unit =
       val hist = value.history.slice(0, value.stepNumber + 1)
@@ -734,45 +760,48 @@ object TicTac8:
     IArray(2, 4, 6)
   )
   def calculateWinner(boardState: IArray[SquareValue]): SquareValue =
-    for IArray(a, b, c) <- lines do
-      if
-        boardState(a) != Empty &&
-        boardState(a) == boardState(b) &&
-        boardState(a) == boardState(c)
-      then return boardState(a)
-    return Empty
+    lines.collectFirst {
+      case IArray(a, b, c)
+        if boardState(a) != Empty
+          && boardState(a) == boardState(b)
+          && boardState(a) == boardState(c)
+      => boardState(a)
+    }.getOrElse(Empty)
 
 class ClickHole extends Component:
   private val numClicks = useState(0)
   
-  override val template: ComponentBuilder =
-    import shaka.builders.*
+  override val template = Frag {
+    import builders.*
 
-    button{onclick(() => numClicks.setValue(_ + 1))
+    button{onclick(_ => numClicks.setValue(_ + 1))
       t"click me"
     }
     p{t"numClicks: ${numClicks.bind(_.toString.t)}"}
+  }
 
 class CustomTag extends Component:
   
-  override def template: ComponentBuilder =
-    import shaka.builders.{ElementBuilder, tag, t}
-    inline def p(init: ElementBuilder)(using Element): Unit = tag("p")(init)
-    p{t"my custom tag"}
-    
+  override val template = Frag {
+    import builders.{tag, t}
+    inline def FIXML(init: HTMLParagraphElement ?=> Unit)(using Element): Unit = tag("FIXML")(init)
+    FIXML{t"100 shares"}
+  }
 
 class CustomCssProp extends Component:
-  override def template: ComponentBuilder =
-    import shaka.builders.{p, t, cssProp}
-    inline def border(style: String)(using Element): Unit = cssProp("border")(style)
+  override val template = Frag {
+    import builders.{p, t, cssProp}
+    inline def border(style: String)(using HTMLElement): Unit = cssProp("border")(style)
     p{border("solid")
       t"Has a solid border"
     }
+  }
 
 class CustomJsProp extends Component:
-  override def template: ComponentBuilder =
-    import shaka.builders.{p, t, prop}
-    inline def onclick(fn: () => Unit)(using Element): Unit = prop("onclick")(fn)
-    p{onclick(() => js.Dynamic.global.alert("clicked!"))
+  override val template = Frag {
+    import builders.{p, t, prop}
+    inline def onclick(fn: Event => Unit)(using Element): Unit = prop("onclick")(fn)
+    p{onclick(_ => window.alert("clicked!"))
       t"click me"
     }
+  }
