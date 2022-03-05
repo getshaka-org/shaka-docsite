@@ -15,7 +15,7 @@ class GetStarted extends Component:
         p{t"The fastest way to get Shaka is by ${a{href("https://www.scala-lang.org/download/"); target("_blank"); t"installing Scala with SBT"}} and generating a starter project:"}
         pre{
           code{cls("scala doc-code")
-            t"""sbt new augustnagro/shaka.g8
+            t"""sbt new getshaka-org/shaka.g8
                |"""
           }
         }
@@ -23,7 +23,7 @@ class GetStarted extends Component:
         br{}
         br{}
         img{src("img/shaka-windsurf.jpg"); width("100%"); alt("shaka windsurfer")}
-        p{t"Windsurfer Amado Vrieswijk performing the 'Shaka'. Photo credit: continentseven.com"}
+        p{t"Windsurfer Amado Vrieswijk sending the 'Shaka'. Photo credit: continentseven.com"}
       }
     }
   
