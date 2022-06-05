@@ -158,12 +158,14 @@ class Home extends Component:
                  |    clearInterval(interval)
                  |
                  |  override def shadowDom = ShadowDom.WithStyle(
-                 |    " div { color: green; } "
+                 |    " span { color: green; } "
                  |  )
                  |
                  |  def template = Frag {
                  |    import builders.*
-                 |    seconds.bind(value => t"Seconds: $$value")
+                 |    seconds.bind(value =>
+                 |      span { t"Seconds: $$value" }
+                 |    )
                  |  }
                  |
                  |"""

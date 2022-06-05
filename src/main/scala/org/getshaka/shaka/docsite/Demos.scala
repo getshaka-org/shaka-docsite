@@ -30,12 +30,14 @@ class Timer extends WebComponent:
     clearInterval(interval)
 
   override def shadowDom = ShadowDom.WithStyle(
-    " div { color: green; } "
+    " span { color: green; } "
   )
 
   def template = Frag {
     import builders.*
-    seconds.bind(value => t"Seconds: $value")
+    seconds.bind(value =>
+      span { t"Seconds: $value" }
+    )
   }
 
 case class Item(date: js.Date, text: String)
