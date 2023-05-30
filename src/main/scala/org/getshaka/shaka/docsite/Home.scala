@@ -230,7 +230,7 @@ class Home extends Component:
                  |          text.bindProps(txt => value(txt))
                  |        button:
                  |          items.bind: i =>
-                 |          t"Add #$${i.size + 1}"
+                 |            t"Add #$${i.size + 1}"
                  |
                  |  private def handleSubmit(e: Event): Unit =
                  |    e.preventDefault()
