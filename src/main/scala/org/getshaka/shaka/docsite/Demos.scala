@@ -10,11 +10,10 @@ import scala.collection.Seq
 import scala.collection.mutable.Buffer
 
 class HelloMessage(user: String) extends Component:
-  def template = Frag {
+  def template = Frag:
     import builders.*
 
     div{color("purple"); p{t"Hello $user"}}
-  }
 
 import scala.scalajs.js.timers.*
 import scala.concurrent.duration.*
@@ -33,12 +32,11 @@ class Timer extends WebComponent:
     " span { color: green; } "
   )
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
     seconds.bind(value =>
       span { t"Seconds: $value" }
     )
-  }
 
 case class Item(date: js.Date, text: String)
 
@@ -46,9 +44,9 @@ class TodoApp extends Component:
   private val items = useState(IArray.empty[Item])
   private val text = useState("")
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
-    div{
+    div:
       h3{color("royalblue"); t"TODO"}
       items.bind(TodoList(_).render)
       form{onsubmit(handleSubmit)
@@ -56,18 +54,15 @@ class TodoApp extends Component:
           t"What needs to be done?"
         }
         br{}
-        input{
+        input:
           id("new-todo")
           width("100px")
           autocomplete("off")
           onchange(handleChange)
           text.bindProps(txt => value(txt))
-        }
         button{items.bind(i =>
           t"Add #${i.size + 1}")}
       }
-    }
-  }
 
   private def handleSubmit(e: Event): Unit =
     e.preventDefault()
@@ -80,13 +75,11 @@ class TodoApp extends Component:
 
 
 class TodoList(items: Seq[Item]) extends Component:
-  def template = Frag {
+  def template = Frag:
     import builders.*
-    ul{
+    ul:
       for item <- items do
         li{item.text.t}
-    }
-  }
 
 @js.native
 @JSGlobal("remarkable.Remarkable")
@@ -99,28 +92,25 @@ class MarkdownEditor extends Component:
   private val mdHtml = useState(
     remarkable.render(initialMd))
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
 
-    div{
+    div:
       h3{t"Input"}
       label{`for`("markdown-content")
         t"Enter some markdown"
       }
       br{}
-      textarea{
+      textarea:
         id("markdown-content")
         oninput(updateMarkdown)
         initialMd.t
-      }
       h3{t"Output"}
       mdHtml.bind(html =>
         div{maxWidth("100px")
           dangerouslySetInnerHtml(html)
         }
       )
-    }
-  }
 
   private def updateMarkdown(e: Event): Unit =
     val input = e.target.asInstanceOf[HTMLTextAreaElement].value
@@ -128,38 +118,33 @@ class MarkdownEditor extends Component:
 
 class ShoppingList(userName: String) extends Component:
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
     div{className("shopping-list")
       h1{t"Shopping list for $userName"}
-      ul{
+      ul:
         li{t"Scala 3 Books"}
         li{t"Scala.js Tutorials"}
         li{t"Cooking guides!"}
-      }
     }
-  }
 
-def shoppingList(userName: String): Frag = Frag {
+def shoppingList(userName: String): Frag = Frag:
   import builders.*
   div{className("shopping-list")
     h1{t"Shopping list for $userName"}
-    ul{
+    ul:
       li{t"Scala 3 Books"}
       li{t"Scala.js Tutorials"}
       li{t"Cooking guides!"}
-    }
   }
-}
 
-def explicitHello(name: String): Frag = Frag {
+def explicitHello(name: String): Frag = Frag:
   (parentElement: Element, parentBinding: Binding[?]) ?=>
     import builders.{name as _, *}
     
     h1{h1Element ?=>
       "hello world".t(using h1Element)
     }(using parentElement)
-}
 
 val TicTacStyles = ShadowDom.WithStyle(
   //language=CSS
@@ -217,7 +202,7 @@ val TicTacStyles = ShadowDom.WithStyle(
 class TicTac1 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -228,21 +213,19 @@ class TicTac1 extends WebComponent:
         ol{/* todo */}
       }
     }
-  }
 
   class Square extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.*
       button{className("square") /* todo */}
-    }
 
   class Board extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.*
 
       val status = "Next player: X"
 
-      div{
+      div:
         div{className("status"); status.t}
         div{className("board-row")
           Square().render
@@ -259,15 +242,13 @@ class TicTac1 extends WebComponent:
           Square().render
           Square().render
         }
-      }
-    }
     end template
 end TicTac1
 
 class TicTac2 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -278,21 +259,19 @@ class TicTac2 extends WebComponent:
         ol{/* todo */}
       }
     }
-  }
 
   class Square(position: Int) extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.{position as _, *}
       button{className("square"); t"$position"}
-    }
 
   class Board extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.*
 
       val status = "Next player: X"
 
-      div{
+      div:
         div{className("status"); status.t}
         for i <- 0 until 9 by 3 do
           div{className("board-row")
@@ -300,8 +279,6 @@ class TicTac2 extends WebComponent:
             Square(i + 1).render
             Square(i + 2).render
           }
-      }
-    }
     end template
 end TicTac2
 
@@ -309,7 +286,7 @@ end TicTac2
 class TicTac3 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -320,21 +297,19 @@ class TicTac3 extends WebComponent:
         ol{/* todo */}
       }
     }
-  }
 
   class Square extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.*
       button{className("square"); onclick(_ => window.alert("clicked"))}
-    }
 
   class Board extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.*
 
       val status = "Next player: X"
 
-      div{
+      div:
         div{className("status"); status.t}
         for i <- 0 until 9 by 3 do
           div{className("board-row")
@@ -342,14 +317,12 @@ class TicTac3 extends WebComponent:
             Square().render
             Square().render
           }
-      }
-    }
 end TicTac3
 
 class TicTac4 extends WebComponent:
   override val shadowDom: ShadowDom = TicTacStyles
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -360,27 +333,25 @@ class TicTac4 extends WebComponent:
         ol{/* todo */}
       }
     }
-  }
 
   class Square extends Component:
     private val wasClicked: OpenState[Boolean] = useState(false)
 
-    def template = Frag {
+    def template = Frag:
       import builders.*
       button{className("square"); onclick(_ => wasClicked.setValue(true))
         wasClicked.bind(clicked =>
           if clicked then t"X" else t""
         )
       }
-    }
 
   class Board extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.*
 
       val status = "Next player: X"
 
-      div{
+      div:
         div{className("status"); status.t}
         for i <- 0 until 9 by 3 do
           div{className("board-row")
@@ -388,8 +359,6 @@ class TicTac4 extends WebComponent:
             Square().render
             Square().render
           }
-      }
-    }
 end TicTac4
 
 enum SquareValue(val display: String):
@@ -404,7 +373,7 @@ class TicTac5 extends WebComponent:
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -415,26 +384,23 @@ class TicTac5 extends WebComponent:
         ol{/* todo */}
       }
     }
-  }
 
   class Square(position: Int) extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.{position as _, *}
 
       button{className("square"); onclick(_ => GameState.setSquare(position))
         GameState.bind(_.boardState(position).display.t)
       }
-    }
 
   class Board extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.*
 
-      val nextPlayer = Frag {
+      val nextPlayer = Frag:
         GameState.bind(s => if s.xIsNext then t"X" else t"O")
-      }
 
-      div{
+      div:
         div{className("status")
           t"Next player: $nextPlayer"
         }
@@ -444,8 +410,6 @@ class TicTac5 extends WebComponent:
             Square(i + 1).render
             Square(i + 2).render
           }
-      }
-    }
 end TicTac5
 object TicTac5:
 
@@ -468,7 +432,7 @@ class TicTac6 extends WebComponent:
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
     div{className("game")
       div{className("game-board")
@@ -479,30 +443,27 @@ class TicTac6 extends WebComponent:
         ol{/* todo */}
       }
     }
-  }
 
   class Square(position: Int) extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.{position as _, *}
 
       button{className("square"); onclick(_ => GameState.setSquare(position))
         GameState.bind(_.boardState(position).display.t)
       }
-    }
 
   class Board extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.*
 
-      val status = Frag {
+      val status = Frag:
         GameState.bind(s => calculateWinner(s.boardState) match
           case X => t"Winner: X"
           case O => t"Winner: O"
           case Empty => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
         )
-      }
 
-      div{
+      div:
         div{className("status")
           status.render
         }
@@ -512,8 +473,6 @@ class TicTac6 extends WebComponent:
             Square(i + 1).render
             Square(i + 2).render
           }
-      }
-    }
 end TicTac6
 private object TicTac6:
   case class Game(xIsNext: Boolean, boardState: IArray[SquareValue])
@@ -556,25 +515,23 @@ class TicTac7 extends WebComponent:
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
 
-    val status = Frag {
+    val status = Frag:
       GameState.bind(s => calculateWinner(s.history(s.stepNumber)) match
         case X => t"Winner: X"
         case O => t"Winner: O"
         case Empty => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
       )
-    }
 
-    val moves = Frag {
+    val moves = Frag:
       GameState.bind(_.history.indices.foreach(move =>
         val desc =
           if move > 0 then "Go to move #" + move
           else "Go to game start"
         li{button{onclick(_ => GameState.jumpTo(move)); desc.t}}
       ))
-    }
 
     div{className("game")
       div{className("game-board")
@@ -585,30 +542,26 @@ class TicTac7 extends WebComponent:
         ol{moves.render}
       }
     }
-  }
 
   class Square(position: Int) extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.{position as _, *}
 
       button{className("square"); onclick(_ => GameState.setSquare(position))
         GameState.bind(s => s.history(s.stepNumber)(position).display.t)
       }
-    }
 
   class Board extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.*
 
-      div{
+      div:
         for i <- 0 until 9 by 3 do
           div{className("board-row")
             Square(i).render
             Square(i + 1).render
             Square(i + 2).render
           }
-      }
-    }
 end TicTac7
 object TicTac7:
   type BoardState = IArray[SquareValue]
@@ -664,25 +617,23 @@ class TicTac8 extends WebComponent:
 
   override val shadowDom: ShadowDom = TicTacStyles
 
-  def template = Frag {
+  def template = Frag:
     import builders.*
 
-    val status = Frag {
+    val status = Frag:
       GameState.bind(s => calculateWinner(s.history(s.stepNumber)) match
         case X => t"Winner: X"
         case O => t"Winner: O"
         case Empty => t"NextPlayer: ${if s.xIsNext then "X" else "O"}"
       )
-    }
 
-    val moves = Frag {
+    val moves = Frag:
       GameState.bind(_.history.indices.foreach(move =>
         val desc =
           if move > 0 then "Go to move #" + move
           else "Go to game start"
         li{button{onclick(_ => GameState.jumpTo(move)); desc.t}}
       ))
-    }
 
     div{className("game")
       div{className("game-board")
@@ -693,30 +644,26 @@ class TicTac8 extends WebComponent:
         ol{moves.render}
       }
     }
-  }
 
   class Square(position: Int) extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.{position as _, *}
 
       button{className("square"); onclick(_ => GameState.setSquare(position))
         GameState.bind(s => s.history(s.stepNumber)(position).display.t)
       }
-    }
 
   class Board extends Component:
-    def template = Frag {
+    def template = Frag:
       import builders.*
 
-      div{
+      div:
         for i <- 0 until 9 by 3 do
           div{className("board-row")
             Square(i).render
             Square(i + 1).render
             Square(i + 2).render
           }
-      }
-    }
 end TicTac8
 object TicTac8:
   
@@ -773,31 +720,28 @@ object TicTac8:
 class ClickHole extends Component:
   private val numClicks = useState(0)
   
-  def template = Frag {
+  def template = Frag:
     import builders.*
 
     button{onclick(_ => numClicks.setValue(_ + 1))
       t"click me"
     }
     p{t"numClicks: ${numClicks.bind(_.toString.t)}"}
-  }
 
 class CustomTag extends Component:
   
-  def template = Frag {
+  def template = Frag:
     import builders.{tag, t}
     inline def FIXML(init: HTMLParagraphElement ?=> Unit)(using Element): Unit = tag("FIXML")(init)
     FIXML{t"100 shares"}
-  }
 
 class CustomCssProp extends Component:
-  def template = Frag {
+  def template = Frag:
     import builders.{p, t, cssProp}
     inline def border(style: String)(using HTMLElement): Unit = cssProp("border")(style)
     p{border("solid")
       t"Has a solid border"
     }
-  }
 
 class CustomJsProp extends Component:
   def template = Frag {

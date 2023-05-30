@@ -6,10 +6,8 @@ lazy val root = project
     name := "shaka-docsite",
     version := "0.1.0-SNAPSHOT",
     versionScheme := Some("early-semver"),
-
     scalaVersion := "3.3.0",
     scalaJSUseMainModuleInitializer := true,
-
     libraryDependencies ++= Seq(
       "org.getshaka" %%% "shaka-router" % "0.6.0"
     )
